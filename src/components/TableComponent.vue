@@ -18,11 +18,13 @@
         </td>
       </tr>
     </table>
+    <button @click="downloadMarkdown">Download as Markdown</button>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, watchEffect } from 'vue';
+import { saveAs } from 'file-saver';
 
 export default defineComponent({
   setup() {
@@ -64,10 +66,36 @@ export default defineComponent({
       inputValues.value = Array(rows.value * cols.value).fill('');
     });
 
+    const downloadMarkdown = () => {
+      const markdownContent = generateMarkdown();
+      const blob = new Blob([markdownContent], { type: 'text/markdown' });
+      saveAs(blob, 'output.md');
+    };
+
+    const generateMarkdown = () => {
+      const markdownRows = [];
+
+      // 行ごとに処理
+      for (let rowIndex = 0; rowIndex < rows.value; rowIndex++) {
+        const rowStart = rowIndex * cols.value;
+        const rowEnd = rowStart + cols.value;
+        const rowContent = inputValues.value.slice(rowStart, rowEnd);
+
+        // 空でないセルがある場合のみ追加
+        const nonEmptyCells = rowContent.filter(value => value.trim() !== '');
+        if (nonEmptyCells.length > 0) {
+          markdownRows.push(`- ${nonEmptyCells.join('\n  - ')}`);
+        }
+      }
+
+      return markdownRows.join('\n');
+    };
+
     return {
       rows,
       cols,
       inputValues,
+      downloadMarkdown,
       moveRight: moveRight,
       moveLeft: moveLeft,
       moveUp: moveUp,
