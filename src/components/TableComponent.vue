@@ -84,7 +84,8 @@ export default defineComponent({
         // 空でないセルがある場合のみ追加
         const nonEmptyCells = rowContent.filter(value => value.trim() !== '');
         if (nonEmptyCells.length > 0) {
-          markdownRows.push(`- ${nonEmptyCells.join('\n  - ')}`);
+          const indentation = '  '.repeat(rowIndex); // インデント作成
+          markdownRows.push(`${indentation}- ${nonEmptyCells.join('\n' + indentation + '  - ')}`);
         }
       }
 
