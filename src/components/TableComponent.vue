@@ -2,105 +2,111 @@
   <div class="spreadsheet-container">
     <table class="spreadsheet">
       <tr v-for="(row, rowIndex) in rows" :key="`row-${rowIndex}`">
-        <td v-for="(col, colIndex) in cols" :key="`col-${colIndex}`">
-          <div class="cell-content">
-          <input
-            v-model="inputValues[rowIndex * cols + colIndex]"
-            type="text"
-            class="input-items"
-            @keydown.prevent.right="moveRight(rowIndex, colIndex)"
-            @keydown.prevent.left="moveLeft(rowIndex, colIndex)"
-            @keydown.prevent.up="moveUp(rowIndex, colIndex)"
-            @keydown.prevent.down="moveDown(rowIndex, colIndex)"
-            @keydown.prevent.enter="moveDown(rowIndex, colIndex)"
-          />
-        </div>
+        <td
+          v-for="(col, colIndex) in cols"
+          :key="`col-${colIndex}`"
+          :class="{ 'focused-cell': isCellFocused(rowIndex, colIndex) }"
+          @click="setFocusedCell(rowIndex, colIndex)"
+          @keydown.prevent="handleCellKeyPress"
+          tabindex="0"
+        >
+          <!-- ここにセルのコンテンツを追加 -->
+          Cell {{ rowIndex }}-{{ colIndex }}
         </td>
       </tr>
     </table>
-    <button @click="downloadMarkdown">Download as Markdown</button>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watchEffect } from 'vue';
-import { saveAs } from 'file-saver';
+import { defineComponent, ref, watch } from 'vue';
+
+interface FocusedCell {
+  rowIndex: number;
+  colIndex: number;
+}
 
 export default defineComponent({
   setup() {
     const rows = ref(40);
     const cols = ref(10);
-    const inputValues = ref(Array(rows.value * cols.value).fill(''));
+    const focusedCell = ref<FocusedCell | null>(null);
 
-    const moveFocus = (rowIndex: number, colIndex: number) => {
-      const index = rowIndex * cols.value + colIndex;
-      const elements = document.getElementsByClassName('input-items');
-      if (elements[index]) {
-        (elements[index] as HTMLElement).focus();
+    const handleCellKeyPress = (event: KeyboardEvent) => {
+      const { key } = event;
+
+      if (key === 'ArrowRight') {
+        moveRight();
+      } else if (key === 'ArrowLeft') {
+        moveLeft();
+      } else if (key === 'ArrowUp') {
+        moveUp();
+      } else if (key === 'ArrowDown') {
+        moveDown();
       }
     };
 
-    const moveRight = (rowIndex: number, colIndex: number) => {
-      const currentCol = colIndex;
-      if (currentCol < cols.value - 1) {
-        moveFocus(rowIndex, colIndex+1);
+    const moveRight = () => {
+      if (focusedCell.value !== null && focusedCell.value.colIndex < cols.value - 1) {
+        setFocusedCell(focusedCell.value.rowIndex, focusedCell.value.colIndex + 1);
       }
     };
 
-    const moveLeft = (rowIndex: number, colIndex: number) => {
-      const currentCol = colIndex;
-      if (currentCol > 0) {
-        moveFocus(rowIndex, colIndex-1);
+    const moveLeft = () => {
+      if (focusedCell.value !== null && focusedCell.value.colIndex > 0) {
+        setFocusedCell(focusedCell.value.rowIndex, focusedCell.value.colIndex - 1);
       }
     };
 
-    const moveUp = (rowIndex: number, colIndex: number) => {
-      moveFocus(rowIndex-1, colIndex);
+    const moveUp = () => {
+      if (focusedCell.value !== null && focusedCell.value.rowIndex > 0) {
+        setFocusedCell(focusedCell.value.rowIndex - 1, focusedCell.value.colIndex);
+      }
     };
 
-    const moveDown = (rowIndex: number, colIndex: number) => {
-      moveFocus(rowIndex+1, colIndex);
+    const moveDown = () => {
+      if (focusedCell.value !== null && focusedCell.value.rowIndex < rows.value - 1) {
+        setFocusedCell(focusedCell.value.rowIndex + 1, focusedCell.value.colIndex);
+      }
     };
 
-    watchEffect(() => {
-      inputValues.value = Array(rows.value * cols.value).fill('');
+    const setFocusedCell = (rowIndex: number, colIndex: number) => {
+      focusedCell.value = { rowIndex, colIndex };
+    };
+
+    const isCellFocused = (rowIndex: number, colIndex: number) => {
+      return (
+        focusedCell.value !== null &&
+        focusedCell.value.rowIndex === rowIndex &&
+        focusedCell.value.colIndex === colIndex
+      );
+    };
+
+    // focusedCellの変更を監視して手動でクラスの変更をトリガーする
+    watch(focusedCell, () => {
+      updateFocusedCellClass();
     });
 
-    const downloadMarkdown = () => {
-      const markdownContent = generateMarkdown();
-      const blob = new Blob([markdownContent], { type: 'text/markdown' });
-      saveAs(blob, 'output.md');
-    };
+    const updateFocusedCellClass = () => {
+      const cells = document.querySelectorAll('.spreadsheet .focused-cell');
+      cells.forEach((cell) => {
+        cell.classList.remove('focused-cell');
+      });
 
-    const generateMarkdown = () => {
-      const markdownRows = [];
-
-      // 行ごとに処理
-      for (let rowIndex = 0; rowIndex < rows.value; rowIndex++) {
-        const rowStart = rowIndex * cols.value;
-        const rowEnd = rowStart + cols.value;
-        const rowContent = inputValues.value.slice(rowStart, rowEnd);
-
-        // 空でないセルがある場合のみ追加
-        const nonEmptyCells = rowContent.filter(value => value.trim() !== '');
-        if (nonEmptyCells.length > 0) {
-          const indentation = '  '.repeat(rowIndex); // インデント作成
-          markdownRows.push(`${indentation}- ${nonEmptyCells.join('\n' + indentation + '  - ')}`);
-        }
+      if (focusedCell.value !== null) {
+        const focusedCellElement = document.querySelector(
+          `.spreadsheet td:nth-child(${focusedCell.value.colIndex + 1}):nth-child(${focusedCell.value.rowIndex + 1})`
+        );
+        focusedCellElement?.classList.add('focused-cell');
       }
-
-      return markdownRows.join('\n');
     };
 
     return {
       rows,
       cols,
-      inputValues,
-      downloadMarkdown,
-      moveRight: moveRight,
-      moveLeft: moveLeft,
-      moveUp: moveUp,
-      moveDown: moveDown,
+      setFocusedCell,
+      isCellFocused,
+      handleCellKeyPress,
     };
   },
 });
@@ -116,21 +122,22 @@ export default defineComponent({
   width: 100%;
 }
 
+.focused-cell {
+  outline: 2px solid blue; /* セルにフォーカスがあたった時の枠線のスタイル */
+}
+
 .spreadsheet td {
   border: 1px solid #ddd;
   padding: 0;
 }
 
-.cell-content {
-  overflow: hidden; /* はみ出るコンテンツを非表示にする */
-  white-space: nowrap; /* テキストを折り返さずに表示 */
-  text-overflow: ellipsis; /* はみ出した場合に省略記号 (...) を表示 */
+/* フォーカス時のスタイル */
+.spreadsheet td:focus {
+  outline: 2px solid #4285f4;
 }
 
-.input-items {
-  width: 100%;
-  box-sizing: border-box;
-  border: none; /* セルとの境界線をなくす */
-  outline: none; /* フォーカス時のアウトラインを非表示にする */
+/* 初期フォーカス時のスタイル */
+.spreadsheet td:focus:first-of-type {
+  outline: none; /* 初期フォーカス時のスタイルを削除 */
 }
 </style>
