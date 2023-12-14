@@ -1,143 +1,110 @@
+<!-- App.vue -->
 <template>
-  <div class="spreadsheet-container">
-    <table class="spreadsheet">
-      <tr v-for="(row, rowIndex) in rows" :key="`row-${rowIndex}`">
+  <div id="app">
+    <table>
+      <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
         <td
-          v-for="(col, colIndex) in cols"
-          :key="`col-${colIndex}`"
-          :class="{ 'focused-cell': isCellFocused(rowIndex, colIndex) }"
-          @click="setFocusedCell(rowIndex, colIndex)"
-          @keydown.prevent="handleCellKeyPress"
+          v-for="(cell, colIndex) in cols"
+          :key="colIndex"
+          @click="handleCellClick(rowIndex, colIndex)"
+          @dblclick="handleCellDoubleClick(rowIndex, colIndex)"
+          :class="{ selected: cellStatus[rowIndex][colIndex] }"
           tabindex="0"
         >
-          <!-- ここにセルのコンテンツを追加 -->
-          Cell {{ rowIndex }}-{{ colIndex }}
+          <input
+            v-if="cellInputStatus[rowIndex][colIndex]"
+            class="editable"
+            @blur="handleCellBlur()"
+          />
         </td>
       </tr>
     </table>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, watch } from 'vue';
+<script setup lang="ts">
+import { ref, onUpdated } from 'vue';
 
-interface FocusedCell {
-  rowIndex: number;
-  colIndex: number;
+const rows = ref<number>(3);
+const cols = ref<number>(3);
+const inputValues = ref<string[][]>([]);
+for (let i = 0; i < 3; i++) {
+  inputValues.value.push([]);
+  for (let j = 0; j < 3; j++) {
+    inputValues.value[i].push('');
+  }
 }
 
-export default defineComponent({
-  setup() {
-    const rows = ref(40);
-    const cols = ref(10);
-    const focusedCell = ref<FocusedCell | null>(null);
+const cellStatus = ref<boolean[][]>([]);
+for (let i = 0; i < 3; i++) {
+  cellStatus.value.push([]);
+  for (let j = 0; j < 3; j++) {
+    cellStatus.value[i].push(false);
+  }
+}
 
-    const handleCellKeyPress = (event: KeyboardEvent) => {
-      const { key } = event;
+const cellInputStatus = ref<boolean[][]>([]);
+for (let i = 0; i < 3; i++) {
+  cellInputStatus.value.push([]);
+  for (let j = 0; j < 3; j++) {
+    cellInputStatus.value[i].push(false);
+  }
+}
 
-      if (key === 'ArrowRight') {
-        moveRight();
-      } else if (key === 'ArrowLeft') {
-        moveLeft();
-      } else if (key === 'ArrowUp') {
-        moveUp();
-      } else if (key === 'ArrowDown') {
-        moveDown();
+const handleCellClick = (rowIndex: number, colIndex: number) => {
+  cellStatus.value[rowIndex][colIndex] = true;
+  for (let i = 0; i < rows.value; i++) {
+    for (let j = 0; j < cols.value; j++) {
+      if (i !== rowIndex || j !== colIndex) {
+        cellInputStatus.value[i][j] = false;
+        cellStatus.value[i][j] = false;
       }
-    };
+    }
+  }
+};
 
-    const moveRight = () => {
-      if (focusedCell.value !== null && focusedCell.value.colIndex < cols.value - 1) {
-        setFocusedCell(focusedCell.value.rowIndex, focusedCell.value.colIndex + 1);
-      }
-    };
+const handleCellDoubleClick = (rowIndex: number, colIndex: number) => {
+  cellInputStatus.value[rowIndex][colIndex] = true;
+};
 
-    const moveLeft = () => {
-      if (focusedCell.value !== null && focusedCell.value.colIndex > 0) {
-        setFocusedCell(focusedCell.value.rowIndex, focusedCell.value.colIndex - 1);
-      }
-    };
-
-    const moveUp = () => {
-      if (focusedCell.value !== null && focusedCell.value.rowIndex > 0) {
-        setFocusedCell(focusedCell.value.rowIndex - 1, focusedCell.value.colIndex);
-      }
-    };
-
-    const moveDown = () => {
-      if (focusedCell.value !== null && focusedCell.value.rowIndex < rows.value - 1) {
-        setFocusedCell(focusedCell.value.rowIndex + 1, focusedCell.value.colIndex);
-      }
-    };
-
-    const setFocusedCell = (rowIndex: number, colIndex: number) => {
-      focusedCell.value = { rowIndex, colIndex };
-    };
-
-    const isCellFocused = (rowIndex: number, colIndex: number) => {
-      return (
-        focusedCell.value !== null &&
-        focusedCell.value.rowIndex === rowIndex &&
-        focusedCell.value.colIndex === colIndex
-      );
-    };
-
-    // focusedCellの変更を監視して手動でクラスの変更をトリガーする
-    watch(focusedCell, () => {
-      updateFocusedCellClass();
-    });
-
-    const updateFocusedCellClass = () => {
-      const cells = document.querySelectorAll('.spreadsheet .focused-cell');
-      cells.forEach((cell) => {
-        cell.classList.remove('focused-cell');
-      });
-
-      if (focusedCell.value !== null) {
-        const focusedCellElement = document.querySelector(
-          `.spreadsheet td:nth-child(${focusedCell.value.colIndex + 1}):nth-child(${focusedCell.value.rowIndex + 1})`
-        );
-        focusedCellElement?.classList.add('focused-cell');
-      }
-    };
-
-    return {
-      rows,
-      cols,
-      setFocusedCell,
-      isCellFocused,
-      handleCellKeyPress,
-    };
-  },
+onUpdated(() => {
+  const focusedCellElement = document.querySelector('.editable');
+  if (focusedCellElement) {
+    (focusedCellElement as HTMLElement).focus();
+  }
 });
+
+const handleCellBlur = () => {
+  for (let i = 0; i < rows.value; i++) {
+    for (let j = 0; j < cols.value; j++) {
+      cellInputStatus.value[i][j] = false;
+      cellStatus.value[i][j] = false;
+    }
+  }
+};
 </script>
 
 <style scoped>
-.spreadsheet-container {
-  margin: 20px;
-}
-
-.spreadsheet {
+table {
   border-collapse: collapse;
-  width: 100%;
 }
 
-.focused-cell {
-  outline: 2px solid blue; /* セルにフォーカスがあたった時の枠線のスタイル */
+td {
+  border: 1px solid #ccc;
+  padding: 100px;
 }
 
-.spreadsheet td {
-  border: 1px solid #ddd;
-  padding: 0;
-}
-
-/* フォーカス時のスタイル */
-.spreadsheet td:focus {
+td:focus {
   outline: 2px solid #4285f4;
 }
 
-/* 初期フォーカス時のスタイル */
-.spreadsheet td:focus:first-of-type {
-  outline: none; /* 初期フォーカス時のスタイルを削除 */
+.selected {
+  border-width: 2px;
+}
+
+input {
+  width: 100%;
+  box-sizing: border-box;
+  outline: none; /* フォーカス時のアウトラインを非表示にする */
 }
 </style>
