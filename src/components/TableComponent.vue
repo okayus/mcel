@@ -1,54 +1,21 @@
-<!-- App.vue -->
-<template>
-  <div id="app">
-    <table>
-      <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
-        <td
-          v-for="(cell, colIndex) in cols"
-          :key="colIndex"
-          @click="handleCellClick(rowIndex, colIndex)"
-          @dblclick="handleCellDoubleClick(rowIndex, colIndex)"
-          :class="{ selected: cellStatus[rowIndex][colIndex] }"
-          tabindex="0"
-        >
-          <input
-            v-if="cellInputStatus[rowIndex][colIndex]"
-            class="editable"
-            @blur="handleCellBlur()"
-          />
-        </td>
-      </tr>
-    </table>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, onUpdated } from 'vue';
 
-const rows = ref<number>(3);
-const cols = ref<number>(3);
-const inputValues = ref<string[][]>([]);
-for (let i = 0; i < 3; i++) {
-  inputValues.value.push([]);
-  for (let j = 0; j < 3; j++) {
-    inputValues.value[i].push('');
-  }
-}
+const rows = ref<number>(20);
+const cols = ref<number>(10);
+const inputValues = ref<string[][]>(initializeArray(rows.value, cols.value, ''));
+const cellStatus = ref<boolean[][]>(initializeArray(rows.value, cols.value, false));
+const cellInputStatus = ref<boolean[][]>(initializeArray(rows.value, cols.value, false));
 
-const cellStatus = ref<boolean[][]>([]);
-for (let i = 0; i < 3; i++) {
-  cellStatus.value.push([]);
-  for (let j = 0; j < 3; j++) {
-    cellStatus.value[i].push(false);
+function initializeArray(rows: number, cols: number, initialValue: any): any[][] {
+  const array: any[][] = [];
+  for (let i = 0; i < rows; i++) {
+    array.push([]);
+    for (let j = 0; j < cols; j++) {
+      array[i].push(initialValue);
+    }
   }
-}
-
-const cellInputStatus = ref<boolean[][]>([]);
-for (let i = 0; i < 3; i++) {
-  cellInputStatus.value.push([]);
-  for (let j = 0; j < 3; j++) {
-    cellInputStatus.value[i].push(false);
-  }
+  return array;
 }
 
 const handleCellClick = (rowIndex: number, colIndex: number) => {
@@ -84,27 +51,59 @@ const handleCellBlur = () => {
 };
 </script>
 
+<template>
+  <div id="app">
+    <table class="spreadsheet">
+      <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
+        <td
+          v-for="(cell, colIndex) in cols"
+          :key="colIndex"
+          @click="handleCellClick(rowIndex, colIndex)"
+          @dblclick="handleCellDoubleClick(rowIndex, colIndex)"
+          :class="{ selected: cellStatus[rowIndex][colIndex] }"
+          tabindex="0"
+        >
+          <input
+            v-if="cellInputStatus[rowIndex][colIndex]"
+            class="editable"
+            v-model="inputValues[rowIndex][colIndex]"
+            @blur="handleCellBlur()"
+          />
+          <span v-else>{{ inputValues[rowIndex][colIndex] }}</span>
+        </td>
+      </tr>
+    </table>
+  </div>
+</template>
+
 <style scoped>
-table {
+#app {
+  margin: 20px;
+}
+
+.spreadsheet {
   border-collapse: collapse;
+  width: 100%;
 }
 
 td {
-  border: 1px solid #ccc;
-  padding: 100px;
-}
-
-td:focus {
-  outline: 2px solid #4285f4;
+  border: 1px solid #ddd;
+  padding: 12px; /* セルの高さを調整 */
+  cursor: pointer;
+  text-align: center;
 }
 
 .selected {
   border-width: 2px;
 }
 
-input {
+.editable {
   width: 100%;
   box-sizing: border-box;
-  outline: none; /* フォーカス時のアウトラインを非表示にする */
 }
+
+td:focus {
+  outline: 2px solid #4285f4;
+}
+
 </style>
