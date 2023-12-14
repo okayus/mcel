@@ -63,13 +63,15 @@ const handleCellBlur = () => {
           :class="{ selected: cellStatus[rowIndex][colIndex] }"
           tabindex="0"
         >
-          <input
-            v-if="cellInputStatus[rowIndex][colIndex]"
-            class="editable"
-            v-model="inputValues[rowIndex][colIndex]"
-            @blur="handleCellBlur()"
-          />
-          <span v-else>{{ inputValues[rowIndex][colIndex] }}</span>
+          <div class="cell-content">
+            <input
+              v-if="cellInputStatus[rowIndex][colIndex]"
+              class="editable"
+              v-model="inputValues[rowIndex][colIndex]"
+              @blur="handleCellBlur()"
+            />
+            <span v-else>{{ inputValues[rowIndex][colIndex] }}</span>
+          </div>
         </td>
       </tr>
     </table>
@@ -88,18 +90,21 @@ const handleCellBlur = () => {
 
 td {
   border: 1px solid #ddd;
-  padding: 12px; /* セルの高さを調整 */
-  cursor: pointer;
   text-align: center;
+  position: relative; /* 追加 */
+  height: 30px; /* セルの縦幅を広げる */
 }
 
-.selected {
-  border-width: 2px;
+.cell-content {
+  position: relative;
 }
 
 .editable {
-  width: 100%;
-  box-sizing: border-box;
+  width: 100px;
+  margin: 0;
+  position: absolute; /* 変更 */
+  top: 0; /* 変更 */
+  left: 0; /* 変更 */
 }
 
 td:focus {
