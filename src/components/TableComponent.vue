@@ -3,11 +3,21 @@ import { ref, onUpdated } from 'vue';
 
 const rows = ref<number>(20);
 const cols = ref<number>(10);
-const inputValues = ref<string[][]>(initializeArray(rows.value, cols.value, ''));
-const cellStatus = ref<boolean[][]>(initializeArray(rows.value, cols.value, false));
-const cellInputStatus = ref<boolean[][]>(initializeArray(rows.value, cols.value, false));
+const inputValues = ref<string[][]>(
+  initializeArray(rows.value, cols.value, '')
+);
+const cellStatus = ref<boolean[][]>(
+  initializeArray(rows.value, cols.value, false)
+);
+const cellInputStatus = ref<boolean[][]>(
+  initializeArray(rows.value, cols.value, false)
+);
 
-function initializeArray(rows: number, cols: number, initialValue: any): any[][] {
+function initializeArray(
+  rows: number,
+  cols: number,
+  initialValue: any
+): any[][] {
   const array: any[][] = [];
   for (let i = 0; i < rows; i++) {
     array.push([]);
@@ -30,11 +40,53 @@ const handleCellClick = (rowIndex: number, colIndex: number) => {
   }
 };
 
+const handleCellKeyPress = (rowIndex: number, colIndex: number) => {
+  const focusedCellElement = document.querySelector('.editable');
+  const key: string = event.key;
+  if (key === 'ArrowUp') {
+    moveUp(rowIndex, colIndex);
+  } else if (key === 'ArrowDown') {
+    moveDown(rowIndex, colIndex);
+  } else if (key === 'ArrowRight') {
+    moveRight(rowIndex, colIndex);
+  } else if (key === 'ArrowLeft') {
+    moveLeft(rowIndex, colIndex);
+  }
+};
+
+const moveUp = (rowIndex: number, colIndex: number) => {
+  if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
+    handleCellClick(rowIndex - 1, colIndex);
+  }
+};
+
+const moveDown = (rowIndex: number, colIndex: number) => {
+  if (rowIndex < rows.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
+    handleCellClick(rowIndex + 1, colIndex);
+  }
+};
+
+const moveRight = (rowIndex: number, colIndex: number) => {
+  if (colIndex < cols.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
+    handleCellClick(rowIndex, colIndex + 1);
+  }
+};
+
+const moveLeft = (rowIndex: number, colIndex: number) => {
+  if (colIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
+    handleCellClick(rowIndex, colIndex - 1);
+  }
+};
+
 const handleCellDoubleClick = (rowIndex: number, colIndex: number) => {
   cellInputStatus.value[rowIndex][colIndex] = true;
 };
 
 onUpdated(() => {
+  const selectedCellElement = document.querySelector('.selected');
+  if (selectedCellElement) {
+    (selectedCellElement as HTMLElement).focus();
+  }
   const focusedCellElement = document.querySelector('.editable');
   if (focusedCellElement) {
     (focusedCellElement as HTMLElement).focus();
@@ -58,19 +110,20 @@ const handleCellBlur = () => {
         <td
           v-for="(cell, colIndex) in cols"
           :key="colIndex"
+          :class="{ selected: cellStatus[rowIndex][colIndex] }"
           @click="handleCellClick(rowIndex, colIndex)"
           @dblclick="handleCellDoubleClick(rowIndex, colIndex)"
-          :class="{ selected: cellStatus[rowIndex][colIndex] }"
+          @keydown.prevent="handleCellKeyPress(rowIndex, colIndex)"
           tabindex="0"
         >
-          <div class="cell-content">
-            <input
-              v-if="cellInputStatus[rowIndex][colIndex]"
-              class="editable"
-              v-model="inputValues[rowIndex][colIndex]"
-              @blur="handleCellBlur()"
-            />
-            <span v-else>{{ inputValues[rowIndex][colIndex] }}</span>
+          <input
+            v-if="cellInputStatus[rowIndex][colIndex]"
+            class="editable"
+            v-model="inputValues[rowIndex][colIndex]"
+            @blur="handleCellBlur()"
+          />
+          <div v-else class="not-editable">
+            {{ inputValues[rowIndex][colIndex] }}
           </div>
         </td>
       </tr>
@@ -86,6 +139,7 @@ const handleCellBlur = () => {
 .spreadsheet {
   border-collapse: collapse;
   width: 100%;
+  table-layout: fixed;
 }
 
 td {
@@ -93,22 +147,21 @@ td {
   text-align: center;
   position: relative; /* 追加 */
   height: 30px; /* セルの縦幅を広げる */
-}
-
-.cell-content {
-  position: relative;
+  width: 50px; /* セルの横幅を広げる */
 }
 
 .editable {
-  width: 100px;
-  margin: 0;
-  position: absolute; /* 変更 */
-  top: 0; /* 変更 */
-  left: 0; /* 変更 */
+  width: 1000%;
+  height: 100%;
+  margin-top: 0;
+  margin-left: 0;
 }
 
 td:focus {
   outline: 2px solid #4285f4;
 }
 
+/* .selected {
+  outline: 2px solid #4285f4;
+} */
 </style>
