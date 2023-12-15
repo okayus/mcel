@@ -2,8 +2,8 @@
 import { ref, onUpdated } from 'vue';
 import { marked } from 'marked';
 
-const rows = ref<number>(20);
-const cols = ref<number>(10);
+const rows = ref<number>(100);
+const cols = ref<number>(20);
 const inputValues = ref<string[][]>(
   initializeArray(rows.value, cols.value, '')
 );
@@ -141,7 +141,8 @@ const handleCellBlur = () => {
             @keydown.prevent="handleCellKeyPress(rowIndex, colIndex)"
             tabindex="0"
             v-html="convertedValues[rowIndex][colIndex]"
-          ></div>
+          >
+          </div>
         </td>
       </tr>
     </table>
@@ -162,7 +163,7 @@ const handleCellBlur = () => {
 td {
   border: 1px solid #ddd;
   text-align: center;
-  position: relative; /* 追加 */
+  /* position: relative; */
   height: 30px; /* セルの縦幅を広げる */
   width: 50px; /* セルの横幅を広げる */
 }
@@ -174,13 +175,15 @@ td {
   margin-left: 0;
 }
 
-/* td:focus {
-  outline: 2px solid #4285f4;
-} */
-
 .selected {
   height: 100%;
   width: 100%;
   outline: 2px solid #4285f4;
 }
+
+td div {
+  vertical-align: middle;
+  white-space: nowrap; /* セル内のテキストを折り返さない（全角だけ改行されてた） */
+}
+
 </style>
