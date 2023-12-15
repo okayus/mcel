@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { ref, onUpdated } from 'vue';
+import { marked } from 'marked';
 
 const rows = ref<number>(20);
 const cols = ref<number>(10);
 const inputValues = ref<string[][]>(
+  initializeArray(rows.value, cols.value, '')
+);
+const convertedValues = ref<any[][]>(
   initializeArray(rows.value, cols.value, '')
 );
 const cellStatus = ref<boolean[][]>(
@@ -51,6 +55,10 @@ const handleCellKeyPress = (rowIndex: number, colIndex: number) => {
     moveRight(rowIndex, colIndex);
   } else if (key === 'ArrowLeft') {
     moveLeft(rowIndex, colIndex);
+  } else if (key === 'F2') {
+    handleCellDoubleClick(rowIndex, colIndex);
+  } else if (key === 'Delete') {
+    inputValues.value[rowIndex][colIndex] = '';
   }
 };
 
@@ -93,11 +101,18 @@ onUpdated(() => {
   }
 });
 
+const handleEnterPress = (rowIndex: number, colIndex: number) => {
+  convertedValues.value[rowIndex][colIndex] = marked(
+    inputValues.value[rowIndex][colIndex]
+  );
+  handleCellClick(rowIndex, colIndex);
+  cellInputStatus.value[rowIndex][colIndex] = false;
+};
+
 const handleCellBlur = () => {
   for (let i = 0; i < rows.value; i++) {
     for (let j = 0; j < cols.value; j++) {
       cellInputStatus.value[i][j] = false;
-      cellStatus.value[i][j] = false;
     }
   }
 };
@@ -110,21 +125,23 @@ const handleCellBlur = () => {
         <td
           v-for="(cell, colIndex) in cols"
           :key="colIndex"
-          :class="{ selected: cellStatus[rowIndex][colIndex] }"
           @click="handleCellClick(rowIndex, colIndex)"
-          @dblclick="handleCellDoubleClick(rowIndex, colIndex)"
-          @keydown.prevent="handleCellKeyPress(rowIndex, colIndex)"
-          tabindex="0"
         >
           <input
             v-if="cellInputStatus[rowIndex][colIndex]"
             class="editable"
             v-model="inputValues[rowIndex][colIndex]"
+            @keydown.enter="handleEnterPress(rowIndex, colIndex)"
             @blur="handleCellBlur()"
           />
-          <div v-else class="not-editable">
-            {{ inputValues[rowIndex][colIndex] }}
-          </div>
+          <div
+            v-else
+            :class="{ selected: cellStatus[rowIndex][colIndex] }"
+            @dblclick="handleCellDoubleClick(rowIndex, colIndex)"
+            @keydown.prevent="handleCellKeyPress(rowIndex, colIndex)"
+            tabindex="0"
+            v-html="convertedValues[rowIndex][colIndex]"
+          ></div>
         </td>
       </tr>
     </table>
@@ -133,7 +150,7 @@ const handleCellBlur = () => {
 
 <style scoped>
 #app {
-  margin: 20px;
+  margin: 10px;
 }
 
 .spreadsheet {
@@ -157,11 +174,13 @@ td {
   margin-left: 0;
 }
 
-td:focus {
-  outline: 2px solid #4285f4;
-}
-
-/* .selected {
+/* td:focus {
   outline: 2px solid #4285f4;
 } */
+
+.selected {
+  height: 100%;
+  width: 100%;
+  outline: 2px solid #4285f4;
+}
 </style>
