@@ -47,18 +47,12 @@ const handleCellClick = (rowIndex: number, colIndex: number) => {
 const handleCellKeyPress = (rowIndex: number, colIndex: number) => {
   const focusedCellElement = document.querySelector('.editable');
   const key: string = event.key;
-  if (key === 'ArrowUp') {
-    moveUp(rowIndex, colIndex);
-  } else if (key === 'ArrowDown') {
-    moveDown(rowIndex, colIndex);
-  } else if (key === 'ArrowRight') {
-    moveRight(rowIndex, colIndex);
-  } else if (key === 'ArrowLeft') {
-    moveLeft(rowIndex, colIndex);
-  } else if (key === 'F2') {
+
+  if (key === 'Enter') {
+    handleEnterPress(rowIndex, colIndex);
+    return;
+  } else {
     handleCellDoubleClick(rowIndex, colIndex);
-  } else if (key === 'Delete') {
-    inputValues.value[rowIndex][colIndex] = '';
   }
 };
 
@@ -86,6 +80,11 @@ const moveLeft = (rowIndex: number, colIndex: number) => {
   }
 };
 
+const cellDelete = (rowIndex: number, colIndex: number) => {
+  inputValues.value[rowIndex][colIndex] = '';
+  convertedValues.value[rowIndex][colIndex] = '';
+};
+
 const handleCellDoubleClick = (rowIndex: number, colIndex: number) => {
   cellInputStatus.value[rowIndex][colIndex] = true;
 };
@@ -109,7 +108,10 @@ const handleEnterPress = (rowIndex: number, colIndex: number) => {
   cellInputStatus.value[rowIndex][colIndex] = false;
 };
 
-const handleCellBlur = () => {
+const handleCellBlur = (rowIndex: number, colIndex: number) => {
+  convertedValues.value[rowIndex][colIndex] = marked(
+    inputValues.value[rowIndex][colIndex]
+  );
   for (let i = 0; i < rows.value; i++) {
     for (let j = 0; j < cols.value; j++) {
       cellInputStatus.value[i][j] = false;
@@ -132,17 +134,23 @@ const handleCellBlur = () => {
             class="editable"
             v-model="inputValues[rowIndex][colIndex]"
             @keydown.enter="handleEnterPress(rowIndex, colIndex)"
-            @blur="handleCellBlur()"
+            @blur="handleCellBlur(rowIndex, colIndex)"
           />
           <div
             v-else
             :class="{ selected: cellStatus[rowIndex][colIndex] }"
             @dblclick="handleCellDoubleClick(rowIndex, colIndex)"
-            @keydown.prevent="handleCellKeyPress(rowIndex, colIndex)"
+            @keydown.enter="handleCellDoubleClick(rowIndex, colIndex)"
+            @keydown.f2="handleCellDoubleClick(rowIndex, colIndex)"
+            @keydown.up="moveUp(rowIndex, colIndex)"
+            @keydown.down="moveDown(rowIndex, colIndex)"
+            @keydown.right="moveRight(rowIndex, colIndex)"
+            @keydown.left="moveLeft(rowIndex, colIndex)"
+            @keydown.delete="cellDelete(rowIndex, colIndex)"
+            @keypress="handleCellKeyPress(rowIndex, colIndex)"
             tabindex="0"
             v-html="convertedValues[rowIndex][colIndex]"
-          >
-          </div>
+          ></div>
         </td>
       </tr>
     </table>
@@ -185,5 +193,4 @@ td div {
   vertical-align: middle;
   white-space: nowrap; /* セル内のテキストを折り返さない（全角だけ改行されてた） */
 }
-
 </style>
