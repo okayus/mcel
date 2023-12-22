@@ -80,6 +80,42 @@ const moveLeft = (rowIndex: number, colIndex: number) => {
   }
 };
 
+const moveAllUp = (rowIndex: number, colIndex: number) => {
+  if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
+    for (let i = rowIndex; i > 0; i--) {
+      handleCellClick(i - 1, colIndex);
+      if(inputValues.value[i - 1][colIndex] !== '') break;
+    }
+  }
+};
+
+const moveAllDown = (rowIndex: number, colIndex: number) => {
+  if (rowIndex < rows.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
+    for (let i = rowIndex; i < rows.value - 1; i++) {
+      handleCellClick(i + 1, colIndex);
+      if(inputValues.value[i + 1][colIndex] !== '') break;
+    }
+  }
+};
+
+const moveAllRight = (rowIndex: number, colIndex: number) => {
+  if (colIndex < cols.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
+    for (let i = colIndex; i < cols.value - 1; i++) {
+      handleCellClick(rowIndex, i + 1);
+      if(inputValues.value[rowIndex][i + 1] !== '') break;
+    }
+  }
+};
+
+const moveAllLeft = (rowIndex: number, colIndex: number) => {
+  if (colIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
+    for (let i = colIndex; i > 0; i--) {
+      handleCellClick(rowIndex, i - 1);
+      if(inputValues.value[rowIndex][i - 1] !== '') break;
+    }
+  }
+};
+
 const cellDelete = (rowIndex: number, colIndex: number) => {
   inputValues.value[rowIndex][colIndex] = '';
   convertedValues.value[rowIndex][colIndex] = '';
@@ -146,6 +182,10 @@ const handleCellBlur = (rowIndex: number, colIndex: number) => {
             @keydown.down="moveDown(rowIndex, colIndex)"
             @keydown.right="moveRight(rowIndex, colIndex)"
             @keydown.left="moveLeft(rowIndex, colIndex)"
+            @keydown.ctrl.up="moveAllUp(rowIndex, colIndex)"
+            @keydown.ctrl.down="moveAllDown(rowIndex, colIndex)"
+            @keydown.ctrl.right="moveAllRight(rowIndex, colIndex)"
+            @keydown.ctrl.left="moveAllLeft(rowIndex, colIndex)"
             @keydown.delete="cellDelete(rowIndex, colIndex)"
             @keypress="handleCellKeyPress(rowIndex, colIndex)"
             tabindex="0"
