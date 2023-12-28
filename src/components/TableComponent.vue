@@ -44,7 +44,7 @@ const handleCellClick = (rowIndex: number, colIndex: number) => {
   }
 };
 
-const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) =>{
+const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
   const focusedCellElement = document.querySelector('.editable');
   const key: string = event.key;
 
@@ -56,29 +56,29 @@ const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) =>{
   }
 };
 
-const moveUp = (rowIndex: number, colIndex: number,event: any) => {
-  event.preventDefault() 
+const moveUp = (rowIndex: number, colIndex: number, event: any) => {
+  event.preventDefault();
   if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
     handleCellClick(rowIndex - 1, colIndex);
   }
 };
 
-const moveDown = (rowIndex: number, colIndex: number,event: any) => {
-  event.preventDefault() 
+const moveDown = (rowIndex: number, colIndex: number, event: any) => {
+  event.preventDefault();
   if (rowIndex < rows.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
     handleCellClick(rowIndex + 1, colIndex);
   }
 };
 
-const moveRight = (rowIndex: number, colIndex: number,event: any) => {
-  event.preventDefault() 
+const moveRight = (rowIndex: number, colIndex: number, event: any) => {
+  event.preventDefault();
   if (colIndex < cols.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
     handleCellClick(rowIndex, colIndex + 1);
   }
 };
 
-const moveLeft = (rowIndex: number, colIndex: number,event: any) => {
-  event.preventDefault() 
+const moveLeft = (rowIndex: number, colIndex: number, event: any) => {
+  event.preventDefault();
   if (colIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
     handleCellClick(rowIndex, colIndex - 1);
   }
@@ -88,7 +88,7 @@ const moveAllUp = (rowIndex: number, colIndex: number) => {
   if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
     for (let i = rowIndex; i > 0; i--) {
       handleCellClick(i - 1, colIndex);
-      if(inputValues.value[i - 1][colIndex] !== '') break;
+      if (inputValues.value[i - 1][colIndex] !== '') break;
     }
   }
 };
@@ -97,7 +97,7 @@ const moveAllDown = (rowIndex: number, colIndex: number) => {
   if (rowIndex < rows.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
     for (let i = rowIndex; i < rows.value - 1; i++) {
       handleCellClick(i + 1, colIndex);
-      if(inputValues.value[i + 1][colIndex] !== '') break;
+      if (inputValues.value[i + 1][colIndex] !== '') break;
     }
   }
 };
@@ -106,7 +106,7 @@ const moveAllRight = (rowIndex: number, colIndex: number) => {
   if (colIndex < cols.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
     for (let i = colIndex; i < cols.value - 1; i++) {
       handleCellClick(rowIndex, i + 1);
-      if(inputValues.value[rowIndex][i + 1] !== '') break;
+      if (inputValues.value[rowIndex][i + 1] !== '') break;
     }
   }
 };
@@ -115,7 +115,7 @@ const moveAllLeft = (rowIndex: number, colIndex: number) => {
   if (colIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
     for (let i = colIndex; i > 0; i--) {
       handleCellClick(rowIndex, i - 1);
-      if(inputValues.value[rowIndex][i - 1] !== '') break;
+      if (inputValues.value[rowIndex][i - 1] !== '') break;
     }
   }
 };
@@ -123,6 +123,18 @@ const moveAllLeft = (rowIndex: number, colIndex: number) => {
 const cellDelete = (rowIndex: number, colIndex: number) => {
   inputValues.value[rowIndex][colIndex] = '';
   convertedValues.value[rowIndex][colIndex] = '';
+};
+
+const cellCopy = (rowIndex: number, colIndex: number) => {
+  const copyText = inputValues.value[rowIndex][colIndex];
+  navigator.clipboard.writeText(copyText);
+};
+
+const cellPaste = (rowIndex: number, colIndex: number) => {
+  navigator.clipboard.readText().then((clipText) => {
+    inputValues.value[rowIndex][colIndex] = clipText;
+    convertedValues.value[rowIndex][colIndex] = marked(clipText);
+  });
 };
 
 const handleCellDoubleClick = (rowIndex: number, colIndex: number) => {
@@ -191,6 +203,8 @@ const handleCellBlur = (rowIndex: number, colIndex: number) => {
             @keydown.ctrl.right="moveAllRight(rowIndex, colIndex)"
             @keydown.ctrl.left="moveAllLeft(rowIndex, colIndex)"
             @keydown.delete="cellDelete(rowIndex, colIndex)"
+            @keydown.ctrl.c="cellCopy(rowIndex, colIndex)"
+            @keydown.ctrl.v="cellPaste(rowIndex, colIndex)"
             @keypress="handleCellKeyPress(rowIndex, colIndex, $event)"
             tabindex="0"
             v-html="convertedValues[rowIndex][colIndex]"
@@ -204,8 +218,9 @@ const handleCellBlur = (rowIndex: number, colIndex: number) => {
 <style scoped>
 #app {
   margin: 10px;
-  overflow-y: auto; /* Y軸方向にスクロール可能に */
-  max-height: calc(100vh - 200px); /* 表の高さを画面の高さに合わせる */
+  overflow-y: scroll; /* Y軸方向にスクロール可能に */
+  overflow-x: scroll; /* X軸方向にスクロール可能に */
+  max-height: calc(100vh - 100px); /* 表の高さを画面の高さに合わせる */
 }
 
 .spreadsheet {
