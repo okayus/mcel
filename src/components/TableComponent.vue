@@ -44,7 +44,7 @@ const handleCellClick = (rowIndex: number, colIndex: number) => {
   }
 };
 
-const handleCellKeyPress = (rowIndex: number, colIndex: number) => {
+const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) =>{
   const focusedCellElement = document.querySelector('.editable');
   const key: string = event.key;
 
@@ -187,7 +187,7 @@ const handleCellBlur = (rowIndex: number, colIndex: number) => {
             @keydown.ctrl.right="moveAllRight(rowIndex, colIndex)"
             @keydown.ctrl.left="moveAllLeft(rowIndex, colIndex)"
             @keydown.delete="cellDelete(rowIndex, colIndex)"
-            @keypress="handleCellKeyPress(rowIndex, colIndex)"
+            @keypress="handleCellKeyPress(rowIndex, colIndex, $event)"
             tabindex="0"
             v-html="convertedValues[rowIndex][colIndex]"
           ></div>
