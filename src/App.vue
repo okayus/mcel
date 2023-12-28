@@ -1,12 +1,15 @@
 <template>
   <div>
+    <HeaderMenu />
+    <div>
       <table-component />
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import TableComponent from './components/TableComponent.vue'
-
+import HeaderMenu from './components/HeaderMenu.vue';
+import TableComponent from './components/TableComponent.vue';
 </script>
 
 <style scoped>

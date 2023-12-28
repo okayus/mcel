@@ -56,25 +56,29 @@ const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) =>{
   }
 };
 
-const moveUp = (rowIndex: number, colIndex: number) => {
+const moveUp = (rowIndex: number, colIndex: number,event: any) => {
+  event.preventDefault() 
   if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
     handleCellClick(rowIndex - 1, colIndex);
   }
 };
 
-const moveDown = (rowIndex: number, colIndex: number) => {
+const moveDown = (rowIndex: number, colIndex: number,event: any) => {
+  event.preventDefault() 
   if (rowIndex < rows.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
     handleCellClick(rowIndex + 1, colIndex);
   }
 };
 
-const moveRight = (rowIndex: number, colIndex: number) => {
+const moveRight = (rowIndex: number, colIndex: number,event: any) => {
+  event.preventDefault() 
   if (colIndex < cols.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
     handleCellClick(rowIndex, colIndex + 1);
   }
 };
 
-const moveLeft = (rowIndex: number, colIndex: number) => {
+const moveLeft = (rowIndex: number, colIndex: number,event: any) => {
+  event.preventDefault() 
   if (colIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
     handleCellClick(rowIndex, colIndex - 1);
   }
@@ -178,10 +182,10 @@ const handleCellBlur = (rowIndex: number, colIndex: number) => {
             @dblclick="handleCellDoubleClick(rowIndex, colIndex)"
             @keydown.enter="handleCellDoubleClick(rowIndex, colIndex)"
             @keydown.f2="handleCellDoubleClick(rowIndex, colIndex)"
-            @keydown.up="moveUp(rowIndex, colIndex)"
-            @keydown.down="moveDown(rowIndex, colIndex)"
-            @keydown.right="moveRight(rowIndex, colIndex)"
-            @keydown.left="moveLeft(rowIndex, colIndex)"
+            @keydown.up="moveUp(rowIndex, colIndex, $event)"
+            @keydown.down="moveDown(rowIndex, colIndex, $event)"
+            @keydown.right="moveRight(rowIndex, colIndex, $event)"
+            @keydown.left="moveLeft(rowIndex, colIndex, $event)"
             @keydown.ctrl.up="moveAllUp(rowIndex, colIndex)"
             @keydown.ctrl.down="moveAllDown(rowIndex, colIndex)"
             @keydown.ctrl.right="moveAllRight(rowIndex, colIndex)"
@@ -200,6 +204,8 @@ const handleCellBlur = (rowIndex: number, colIndex: number) => {
 <style scoped>
 #app {
   margin: 10px;
+  overflow-y: auto; /* Y軸方向にスクロール可能に */
+  max-height: calc(100vh - 200px); /* 表の高さを画面の高さに合わせる */
 }
 
 .spreadsheet {
