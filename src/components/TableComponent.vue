@@ -16,6 +16,9 @@ const cellStatus = ref<boolean[][]>(
 const cellInputStatus = ref<boolean[][]>(
   initializeArray(rows.value, cols.value, false)
 );
+const cellsStatus = ref<boolean[][]>(
+  initializeArray(rows.value, cols.value, false)
+);
 
 function initializeArray(
   rows: number,
@@ -44,6 +47,7 @@ const handleCellClick = (rowIndex: number, colIndex: number) => {
   }
 };
 
+
 const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
   const focusedCellElement = document.querySelector('.editable');
   const key: string = event.key;
@@ -51,14 +55,16 @@ const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
   if (key === 'Enter') {
     handleEnterPress(rowIndex, colIndex);
     return;
+  } else if (key === 'Delete') {
+    return;
   } else {
     handleCellDoubleClick(rowIndex, colIndex);
   }
 };
 
-const moveUp = (rowIndex: number, colIndex: number, event: any) => {
+const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   event.preventDefault();
-  if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
+  if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex] && !event.shiftKey) {
     handleCellClick(rowIndex - 1, colIndex);
   }
 };
@@ -120,6 +126,13 @@ const moveAllLeft = (rowIndex: number, colIndex: number) => {
   }
 };
 
+const moveUpWithShift = (rowIndex: number, colIndex: number) => {
+  if (rowIndex > 0) {
+    cellsStatus.value[rowIndex][colIndex] = true;
+    cellsStatus.value[rowIndex - 1][colIndex] = true;
+  }
+};
+
 const cellDelete = (rowIndex: number, colIndex: number) => {
   inputValues.value[rowIndex][colIndex] = '';
   convertedValues.value[rowIndex][colIndex] = '';
@@ -143,8 +156,11 @@ const handleCellDoubleClick = (rowIndex: number, colIndex: number) => {
 
 onUpdated(() => {
   const selectedCellElement = document.querySelector('.selected');
-  if (selectedCellElement) {
+  const multiSelectedCellElements = document.querySelectorAll('.multiSelected');
+  if (selectedCellElement && multiSelectedCellElements.length === 0) {
     (selectedCellElement as HTMLElement).focus();
+  } else if (multiSelectedCellElements.length > 0) {
+    (multiSelectedCellElements[0] as HTMLElement).focus();
   }
   const focusedCellElement = document.querySelector('.editable');
   if (focusedCellElement) {
@@ -153,6 +169,24 @@ onUpdated(() => {
 });
 
 const handleEnterPress = (rowIndex: number, colIndex: number) => {
+  /*inputValues.value[rowIndex][colIndex]の最初の三文字が数値+半角ドット+半角スペースの場合、
+  上のセルのolタグの個数を取得して、inputValues.value[rowIndex][colIndex]の最初の三文字をolタグの個数+1 + 半角ドット + 半角スペースに変換する
+  */
+  const inputText = inputValues.value[rowIndex][colIndex];
+  const firstThreeChars = inputText.slice(0, 3);
+  const regex = /^[0-9]+\.\s$/;
+  if (regex.test(firstThreeChars)) {
+    let olCount = 0;
+    while (
+      convertedValues.value[rowIndex - 1 - olCount][colIndex].includes('<ol') &&
+      convertedValues.value[rowIndex - 1 - olCount][colIndex].includes('</ol>')
+    ) {
+      olCount++;
+    }
+    // inputValues.value[rowIndex][colIndex]の最初の三文字をolCount+1 + 半角ドット + 半角スペースに変換する
+    inputValues.value[rowIndex][colIndex] =
+      olCount + 1 + '. ' + inputText.slice(3);
+  }
   convertedValues.value[rowIndex][colIndex] = marked(
     inputValues.value[rowIndex][colIndex]
   );
@@ -180,6 +214,8 @@ const handleCellBlur = (rowIndex: number, colIndex: number) => {
           v-for="(cell, colIndex) in cols"
           :key="colIndex"
           @click="handleCellClick(rowIndex, colIndex)"
+          :class="{ multiSelected: cellsStatus[rowIndex][colIndex] }"
+          :id="rowIndex + '-' + colIndex"
         >
           <input
             v-if="cellInputStatus[rowIndex][colIndex]"
@@ -202,6 +238,7 @@ const handleCellBlur = (rowIndex: number, colIndex: number) => {
             @keydown.ctrl.down="moveAllDown(rowIndex, colIndex)"
             @keydown.ctrl.right="moveAllRight(rowIndex, colIndex)"
             @keydown.ctrl.left="moveAllLeft(rowIndex, colIndex)"
+            @keydown.shift.up="moveUpWithShift(rowIndex, colIndex)"
             @keydown.delete="cellDelete(rowIndex, colIndex)"
             @keydown.ctrl.c="cellCopy(rowIndex, colIndex)"
             @keydown.ctrl.v="cellPaste(rowIndex, colIndex)"
@@ -253,5 +290,10 @@ td {
 td div {
   vertical-align: middle;
   white-space: nowrap; /* セル内のテキストを折り返さない（全角だけ改行されてた） */
+}
+
+.multiSelected {
+  /* 背景を薄い青にする */
+  background-color: #e6f3ff;
 }
 </style>
