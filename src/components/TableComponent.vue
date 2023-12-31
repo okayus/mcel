@@ -64,34 +64,55 @@ const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
 
 const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   event.preventDefault();
+  let foucusedPointer: number[] = [rowIndex, colIndex];
   if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
-    handleCellClick(rowIndex - 1, colIndex);
     if (event.ctrlKey) {
       for (let i = rowIndex; i > 0; i--) {
         handleCellClick(i - 1, colIndex);
-        if (inputValues.value[i - 1][colIndex] !== '') break;
+        foucusedPointer = [i - 1, colIndex];
+        if (inputValues.value[i - 1][colIndex] !== '') {
+          break;
+        }
       }
+    }else {
+      handleCellClick(rowIndex - 1, colIndex);
+      foucusedPointer = [rowIndex - 1, colIndex];
     }
     if (event.shiftKey) {
       if (isNaN(startPointer.value[0]) || isNaN(startPointer.value[1])) {
         startPointer.value = [rowIndex, colIndex];
-        multipleSelectedCells.value[rowIndex][colIndex] = true;
-        multipleSelectedCells.value[rowIndex - 1][colIndex] = true;
-      } else if (startPointer.value[0] >= rowIndex) {
-        for (let j = startPointer.value[1]; j <= colIndex; j++) {
-          multipleSelectedCells.value[rowIndex][j] = true;
-          multipleSelectedCells.value[rowIndex - 1][j] = true;
+        for(let i = rowIndex; i >= foucusedPointer[0]; i--) {
+          multipleSelectedCells.value[i][colIndex] = true;
         }
-        for (let i = colIndex; i <= startPointer.value[1]; i++) {
-          multipleSelectedCells.value[rowIndex][i] = true;
-          multipleSelectedCells.value[rowIndex - 1][i] = true;
+      } else if (startPointer.value[0] >= rowIndex) {
+        for (let i = startPointer.value[0]; i > foucusedPointer[0]; i--) {
+          for (let j = startPointer.value[1]; j <= colIndex; j++) {
+            multipleSelectedCells.value[i][j] = true;
+            multipleSelectedCells.value[i - 1][j] = true;
+          }
+          for (let k = colIndex; k <= startPointer.value[1]; k++) {
+            multipleSelectedCells.value[i][k] = true;
+            multipleSelectedCells.value[i - 1][k] = true;
+          }
         }
       } else {
-        for (let j = startPointer.value[1]; j <= colIndex; j++) {
-          multipleSelectedCells.value[rowIndex][j] = false;
+        for (let i = rowIndex; i > startPointer.value[0]; i--) {
+          for (let j = startPointer.value[1]; j <= colIndex; j++) {
+            multipleSelectedCells.value[i][j] = false;
+          }
+          for (let k = colIndex; k <= startPointer.value[1]; k++) {
+            multipleSelectedCells.value[i][k] = false;
+          }
         }
-        for (let i = colIndex; i <= startPointer.value[1]; i++) {
-          multipleSelectedCells.value[rowIndex][i] = false;
+        for (let i = startPointer.value[0]; i > foucusedPointer[0]; i--) {
+          for (let j = startPointer.value[1]; j <= colIndex; j++) {
+            multipleSelectedCells.value[i][j] = true;
+            multipleSelectedCells.value[i - 1][j] = true;
+          }
+          for (let k = colIndex; k <= startPointer.value[1]; k++) {
+            multipleSelectedCells.value[i][k] = true;
+            multipleSelectedCells.value[i - 1][k] = true;
+          }
         }
       }
     }
