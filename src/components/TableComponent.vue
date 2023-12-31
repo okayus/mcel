@@ -16,9 +16,10 @@ const cellStatus = ref<boolean[][]>(
 const cellInputStatus = ref<boolean[][]>(
   initializeArray(rows.value, cols.value, false)
 );
-const cellsStatus = ref<boolean[][]>(
+const multipleSelectedCells = ref<boolean[][]>(
   initializeArray(rows.value, cols.value, false)
 );
+const startPointer = ref<number[]>([NaN, NaN]);
 
 function initializeArray(
   rows: number,
@@ -47,7 +48,6 @@ const handleCellClick = (rowIndex: number, colIndex: number) => {
   }
 };
 
-
 const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
   const focusedCellElement = document.querySelector('.editable');
   const key: string = event.key;
@@ -64,7 +64,7 @@ const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
 
 const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   event.preventDefault();
-  if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex] && !event.shiftKey) {
+  if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
     handleCellClick(rowIndex - 1, colIndex);
   }
 };
@@ -128,8 +128,105 @@ const moveAllLeft = (rowIndex: number, colIndex: number) => {
 
 const moveUpWithShift = (rowIndex: number, colIndex: number) => {
   if (rowIndex > 0) {
-    cellsStatus.value[rowIndex][colIndex] = true;
-    cellsStatus.value[rowIndex - 1][colIndex] = true;
+    if (isNaN(startPointer.value[0]) || isNaN(startPointer.value[1])) {
+      startPointer.value = [rowIndex, colIndex];
+      multipleSelectedCells.value[rowIndex][colIndex] = true;
+      multipleSelectedCells.value[rowIndex - 1][colIndex] = true;
+    } else if (startPointer.value[0] >= rowIndex) {
+      for (let j = startPointer.value[1]; j <= colIndex; j++) {
+        multipleSelectedCells.value[rowIndex][j] = true;
+        multipleSelectedCells.value[rowIndex - 1][j] = true;
+      }
+      for (let i = colIndex; i <= startPointer.value[1]; i++) {
+        multipleSelectedCells.value[rowIndex][i] = true;
+        multipleSelectedCells.value[rowIndex - 1][i] = true;
+      }
+    } else {
+      for (let j = startPointer.value[1]; j <= colIndex; j++) {
+        multipleSelectedCells.value[rowIndex][j] = false;
+      }
+      for(let i = colIndex; i <= startPointer.value[1]; i++) {
+        multipleSelectedCells.value[rowIndex][i] = false;
+      }
+    }
+  }
+};
+
+const moveDownWithShift = (rowIndex: number, colIndex: number) => {
+  if (rowIndex < rows.value - 1) {
+    if (isNaN(startPointer.value[0]) || isNaN(startPointer.value[1])) {
+      startPointer.value = [rowIndex, colIndex];
+      multipleSelectedCells.value[rowIndex][colIndex] = true;
+      multipleSelectedCells.value[rowIndex + 1][colIndex] = true;
+    } else if (startPointer.value[0] <= rowIndex) {
+      for (let j = startPointer.value[1]; j <= colIndex; j++) {
+        multipleSelectedCells.value[rowIndex][j] = true;
+        multipleSelectedCells.value[rowIndex + 1][j] = true;
+      }
+      for (let i = colIndex; i <= startPointer.value[1]; i++) {
+        multipleSelectedCells.value[rowIndex][i] = true;
+        multipleSelectedCells.value[rowIndex + 1][i] = true;
+      }
+    } else {
+      for (let j = startPointer.value[1]; j <= colIndex; j++) {
+        multipleSelectedCells.value[rowIndex][j] = false;
+      }
+      for(let i = colIndex; i <= startPointer.value[1]; i++) {
+        multipleSelectedCells.value[rowIndex][i] = false;
+      }
+    }
+  }
+};
+
+const moveRightWithShift = (rowIndex: number, colIndex: number) => {
+  if (colIndex < cols.value - 1) {
+    if (isNaN(startPointer.value[0]) || isNaN(startPointer.value[1])) {
+      startPointer.value = [rowIndex, colIndex];
+      multipleSelectedCells.value[rowIndex][colIndex] = true;
+      multipleSelectedCells.value[rowIndex][colIndex + 1] = true;
+    } else if (startPointer.value[1] <= colIndex) {
+      for (let j = startPointer.value[0]; j <= rowIndex; j++) {
+        multipleSelectedCells.value[j][colIndex] = true;
+        multipleSelectedCells.value[j][colIndex + 1] = true;
+      }
+      for (let i = rowIndex; i <= startPointer.value[0]; i++) {
+        multipleSelectedCells.value[i][colIndex] = true;
+        multipleSelectedCells.value[i][colIndex + 1] = true;
+      }
+    } else {
+      for (let j = startPointer.value[0]; j <= rowIndex; j++) {
+        multipleSelectedCells.value[j][colIndex] = false;
+      }
+      for(let i = rowIndex; i <= startPointer.value[0]; i++) {
+        multipleSelectedCells.value[i][colIndex] = false;
+      }
+    }
+  }
+};
+
+const moveLeftWithShift = (rowIndex: number, colIndex: number) => {
+  if (colIndex > 0) {
+    if (isNaN(startPointer.value[0]) || isNaN(startPointer.value[1])) {
+      startPointer.value = [rowIndex, colIndex];
+      multipleSelectedCells.value[rowIndex][colIndex] = true;
+      multipleSelectedCells.value[rowIndex][colIndex - 1] = true;
+    } else if (startPointer.value[1] >= colIndex) {
+      for (let j = startPointer.value[0]; j <= rowIndex; j++) {
+        multipleSelectedCells.value[j][colIndex] = true;
+        multipleSelectedCells.value[j][colIndex - 1] = true;
+      }
+      for (let i = rowIndex; i <= startPointer.value[0]; i++) {
+        multipleSelectedCells.value[i][colIndex] = true;
+        multipleSelectedCells.value[i][colIndex - 1] = true;
+      }
+    } else {
+      for (let j = startPointer.value[0]; j <= rowIndex; j++) {
+        multipleSelectedCells.value[j][colIndex] = false;
+      }
+      for(let i = rowIndex; i <= startPointer.value[0]; i++) {
+        multipleSelectedCells.value[i][colIndex] = false;
+      }
+    }
   }
 };
 
@@ -153,20 +250,6 @@ const cellPaste = (rowIndex: number, colIndex: number) => {
 const handleCellDoubleClick = (rowIndex: number, colIndex: number) => {
   cellInputStatus.value[rowIndex][colIndex] = true;
 };
-
-onUpdated(() => {
-  const selectedCellElement = document.querySelector('.selected');
-  const multiSelectedCellElements = document.querySelectorAll('.multiSelected');
-  if (selectedCellElement && multiSelectedCellElements.length === 0) {
-    (selectedCellElement as HTMLElement).focus();
-  } else if (multiSelectedCellElements.length > 0) {
-    (multiSelectedCellElements[0] as HTMLElement).focus();
-  }
-  const focusedCellElement = document.querySelector('.editable');
-  if (focusedCellElement) {
-    (focusedCellElement as HTMLElement).focus();
-  }
-});
 
 const handleEnterPress = (rowIndex: number, colIndex: number) => {
   /*inputValues.value[rowIndex][colIndex]の最初の三文字が数値+半角ドット+半角スペースの場合、
@@ -204,6 +287,17 @@ const handleCellBlur = (rowIndex: number, colIndex: number) => {
     }
   }
 };
+
+onUpdated(() => {
+  const selectedCellElement = document.querySelector('.selected');
+  if (selectedCellElement) {
+    (selectedCellElement as HTMLElement).focus();
+  }
+  const focusedCellElement = document.querySelector('.editable');
+  if (focusedCellElement) {
+    (focusedCellElement as HTMLElement).focus();
+  }
+});
 </script>
 
 <template>
@@ -214,7 +308,7 @@ const handleCellBlur = (rowIndex: number, colIndex: number) => {
           v-for="(cell, colIndex) in cols"
           :key="colIndex"
           @click="handleCellClick(rowIndex, colIndex)"
-          :class="{ multiSelected: cellsStatus[rowIndex][colIndex] }"
+          :class="{ multiSelected: multipleSelectedCells[rowIndex][colIndex] }"
           :id="rowIndex + '-' + colIndex"
         >
           <input
@@ -239,6 +333,9 @@ const handleCellBlur = (rowIndex: number, colIndex: number) => {
             @keydown.ctrl.right="moveAllRight(rowIndex, colIndex)"
             @keydown.ctrl.left="moveAllLeft(rowIndex, colIndex)"
             @keydown.shift.up="moveUpWithShift(rowIndex, colIndex)"
+            @keydown.shift.down="moveDownWithShift(rowIndex, colIndex)"
+            @keydown.shift.right="moveRightWithShift(rowIndex, colIndex)"
+            @keydown.shift.left="moveLeftWithShift(rowIndex, colIndex)"
             @keydown.delete="cellDelete(rowIndex, colIndex)"
             @keydown.ctrl.c="cellCopy(rowIndex, colIndex)"
             @keydown.ctrl.v="cellPaste(rowIndex, colIndex)"
