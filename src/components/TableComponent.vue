@@ -66,6 +66,35 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   event.preventDefault();
   if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
     handleCellClick(rowIndex - 1, colIndex);
+    if (event.ctrlKey) {
+      for (let i = rowIndex; i > 0; i--) {
+        handleCellClick(i - 1, colIndex);
+        if (inputValues.value[i - 1][colIndex] !== '') break;
+      }
+    }
+    if (event.shiftKey) {
+      if (isNaN(startPointer.value[0]) || isNaN(startPointer.value[1])) {
+        startPointer.value = [rowIndex, colIndex];
+        multipleSelectedCells.value[rowIndex][colIndex] = true;
+        multipleSelectedCells.value[rowIndex - 1][colIndex] = true;
+      } else if (startPointer.value[0] >= rowIndex) {
+        for (let j = startPointer.value[1]; j <= colIndex; j++) {
+          multipleSelectedCells.value[rowIndex][j] = true;
+          multipleSelectedCells.value[rowIndex - 1][j] = true;
+        }
+        for (let i = colIndex; i <= startPointer.value[1]; i++) {
+          multipleSelectedCells.value[rowIndex][i] = true;
+          multipleSelectedCells.value[rowIndex - 1][i] = true;
+        }
+      } else {
+        for (let j = startPointer.value[1]; j <= colIndex; j++) {
+          multipleSelectedCells.value[rowIndex][j] = false;
+        }
+        for (let i = colIndex; i <= startPointer.value[1]; i++) {
+          multipleSelectedCells.value[rowIndex][i] = false;
+        }
+      }
+    }
   }
 };
 
@@ -73,6 +102,35 @@ const moveDown = (rowIndex: number, colIndex: number, event: any) => {
   event.preventDefault();
   if (rowIndex < rows.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
     handleCellClick(rowIndex + 1, colIndex);
+    if (event.ctrlKey) {
+      for (let i = rowIndex; i < rows.value - 1; i++) {
+        handleCellClick(i + 1, colIndex);
+        if (inputValues.value[i + 1][colIndex] !== '') break;
+      }
+    }
+    if (event.shiftKey) {
+      if (isNaN(startPointer.value[0]) || isNaN(startPointer.value[1])) {
+        startPointer.value = [rowIndex, colIndex];
+        multipleSelectedCells.value[rowIndex][colIndex] = true;
+        multipleSelectedCells.value[rowIndex + 1][colIndex] = true;
+      } else if (startPointer.value[0] <= rowIndex) {
+        for (let j = startPointer.value[1]; j <= colIndex; j++) {
+          multipleSelectedCells.value[rowIndex][j] = true;
+          multipleSelectedCells.value[rowIndex + 1][j] = true;
+        }
+        for (let i = colIndex; i <= startPointer.value[1]; i++) {
+          multipleSelectedCells.value[rowIndex][i] = true;
+          multipleSelectedCells.value[rowIndex + 1][i] = true;
+        }
+      } else {
+        for (let j = startPointer.value[1]; j <= colIndex; j++) {
+          multipleSelectedCells.value[rowIndex][j] = false;
+        }
+        for (let i = colIndex; i <= startPointer.value[1]; i++) {
+          multipleSelectedCells.value[rowIndex][i] = false;
+        }
+      }
+    }
   }
 };
 
@@ -80,6 +138,35 @@ const moveRight = (rowIndex: number, colIndex: number, event: any) => {
   event.preventDefault();
   if (colIndex < cols.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
     handleCellClick(rowIndex, colIndex + 1);
+    if (event.ctrlKey) {
+      for (let i = colIndex; i < cols.value - 1; i++) {
+        handleCellClick(rowIndex, i + 1);
+        if (inputValues.value[rowIndex][i + 1] !== '') break;
+      }
+    }
+    if (event.shiftKey) {
+      if (isNaN(startPointer.value[0]) || isNaN(startPointer.value[1])) {
+        startPointer.value = [rowIndex, colIndex];
+        multipleSelectedCells.value[rowIndex][colIndex] = true;
+        multipleSelectedCells.value[rowIndex][colIndex + 1] = true;
+      } else if (startPointer.value[1] <= colIndex) {
+        for (let j = startPointer.value[0]; j <= rowIndex; j++) {
+          multipleSelectedCells.value[j][colIndex] = true;
+          multipleSelectedCells.value[j][colIndex + 1] = true;
+        }
+        for (let i = rowIndex; i <= startPointer.value[0]; i++) {
+          multipleSelectedCells.value[i][colIndex] = true;
+          multipleSelectedCells.value[i][colIndex + 1] = true;
+        }
+      } else {
+        for (let j = startPointer.value[0]; j <= rowIndex; j++) {
+          multipleSelectedCells.value[j][colIndex] = false;
+        }
+        for (let i = rowIndex; i <= startPointer.value[0]; i++) {
+          multipleSelectedCells.value[i][colIndex] = false;
+        }
+      }
+    }
   }
 };
 
@@ -87,144 +174,33 @@ const moveLeft = (rowIndex: number, colIndex: number, event: any) => {
   event.preventDefault();
   if (colIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
     handleCellClick(rowIndex, colIndex - 1);
-  }
-};
-
-const moveAllUp = (rowIndex: number, colIndex: number) => {
-  if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
-    for (let i = rowIndex; i > 0; i--) {
-      handleCellClick(i - 1, colIndex);
-      if (inputValues.value[i - 1][colIndex] !== '') break;
-    }
-  }
-};
-
-const moveAllDown = (rowIndex: number, colIndex: number) => {
-  if (rowIndex < rows.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
-    for (let i = rowIndex; i < rows.value - 1; i++) {
-      handleCellClick(i + 1, colIndex);
-      if (inputValues.value[i + 1][colIndex] !== '') break;
-    }
-  }
-};
-
-const moveAllRight = (rowIndex: number, colIndex: number) => {
-  if (colIndex < cols.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
-    for (let i = colIndex; i < cols.value - 1; i++) {
-      handleCellClick(rowIndex, i + 1);
-      if (inputValues.value[rowIndex][i + 1] !== '') break;
-    }
-  }
-};
-
-const moveAllLeft = (rowIndex: number, colIndex: number) => {
-  if (colIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
-    for (let i = colIndex; i > 0; i--) {
-      handleCellClick(rowIndex, i - 1);
-      if (inputValues.value[rowIndex][i - 1] !== '') break;
-    }
-  }
-};
-
-const moveUpWithShift = (rowIndex: number, colIndex: number) => {
-  if (rowIndex > 0) {
-    if (isNaN(startPointer.value[0]) || isNaN(startPointer.value[1])) {
-      startPointer.value = [rowIndex, colIndex];
-      multipleSelectedCells.value[rowIndex][colIndex] = true;
-      multipleSelectedCells.value[rowIndex - 1][colIndex] = true;
-    } else if (startPointer.value[0] >= rowIndex) {
-      for (let j = startPointer.value[1]; j <= colIndex; j++) {
-        multipleSelectedCells.value[rowIndex][j] = true;
-        multipleSelectedCells.value[rowIndex - 1][j] = true;
-      }
-      for (let i = colIndex; i <= startPointer.value[1]; i++) {
-        multipleSelectedCells.value[rowIndex][i] = true;
-        multipleSelectedCells.value[rowIndex - 1][i] = true;
-      }
-    } else {
-      for (let j = startPointer.value[1]; j <= colIndex; j++) {
-        multipleSelectedCells.value[rowIndex][j] = false;
-      }
-      for(let i = colIndex; i <= startPointer.value[1]; i++) {
-        multipleSelectedCells.value[rowIndex][i] = false;
+    if (event.ctrlKey) {
+      for (let i = colIndex; i > 0; i--) {
+        handleCellClick(rowIndex, i - 1);
+        if (inputValues.value[rowIndex][i - 1] !== '') break;
       }
     }
-  }
-};
-
-const moveDownWithShift = (rowIndex: number, colIndex: number) => {
-  if (rowIndex < rows.value - 1) {
-    if (isNaN(startPointer.value[0]) || isNaN(startPointer.value[1])) {
-      startPointer.value = [rowIndex, colIndex];
-      multipleSelectedCells.value[rowIndex][colIndex] = true;
-      multipleSelectedCells.value[rowIndex + 1][colIndex] = true;
-    } else if (startPointer.value[0] <= rowIndex) {
-      for (let j = startPointer.value[1]; j <= colIndex; j++) {
-        multipleSelectedCells.value[rowIndex][j] = true;
-        multipleSelectedCells.value[rowIndex + 1][j] = true;
-      }
-      for (let i = colIndex; i <= startPointer.value[1]; i++) {
-        multipleSelectedCells.value[rowIndex][i] = true;
-        multipleSelectedCells.value[rowIndex + 1][i] = true;
-      }
-    } else {
-      for (let j = startPointer.value[1]; j <= colIndex; j++) {
-        multipleSelectedCells.value[rowIndex][j] = false;
-      }
-      for(let i = colIndex; i <= startPointer.value[1]; i++) {
-        multipleSelectedCells.value[rowIndex][i] = false;
-      }
-    }
-  }
-};
-
-const moveRightWithShift = (rowIndex: number, colIndex: number) => {
-  if (colIndex < cols.value - 1) {
-    if (isNaN(startPointer.value[0]) || isNaN(startPointer.value[1])) {
-      startPointer.value = [rowIndex, colIndex];
-      multipleSelectedCells.value[rowIndex][colIndex] = true;
-      multipleSelectedCells.value[rowIndex][colIndex + 1] = true;
-    } else if (startPointer.value[1] <= colIndex) {
-      for (let j = startPointer.value[0]; j <= rowIndex; j++) {
-        multipleSelectedCells.value[j][colIndex] = true;
-        multipleSelectedCells.value[j][colIndex + 1] = true;
-      }
-      for (let i = rowIndex; i <= startPointer.value[0]; i++) {
-        multipleSelectedCells.value[i][colIndex] = true;
-        multipleSelectedCells.value[i][colIndex + 1] = true;
-      }
-    } else {
-      for (let j = startPointer.value[0]; j <= rowIndex; j++) {
-        multipleSelectedCells.value[j][colIndex] = false;
-      }
-      for(let i = rowIndex; i <= startPointer.value[0]; i++) {
-        multipleSelectedCells.value[i][colIndex] = false;
-      }
-    }
-  }
-};
-
-const moveLeftWithShift = (rowIndex: number, colIndex: number) => {
-  if (colIndex > 0) {
-    if (isNaN(startPointer.value[0]) || isNaN(startPointer.value[1])) {
-      startPointer.value = [rowIndex, colIndex];
-      multipleSelectedCells.value[rowIndex][colIndex] = true;
-      multipleSelectedCells.value[rowIndex][colIndex - 1] = true;
-    } else if (startPointer.value[1] >= colIndex) {
-      for (let j = startPointer.value[0]; j <= rowIndex; j++) {
-        multipleSelectedCells.value[j][colIndex] = true;
-        multipleSelectedCells.value[j][colIndex - 1] = true;
-      }
-      for (let i = rowIndex; i <= startPointer.value[0]; i++) {
-        multipleSelectedCells.value[i][colIndex] = true;
-        multipleSelectedCells.value[i][colIndex - 1] = true;
-      }
-    } else {
-      for (let j = startPointer.value[0]; j <= rowIndex; j++) {
-        multipleSelectedCells.value[j][colIndex] = false;
-      }
-      for(let i = rowIndex; i <= startPointer.value[0]; i++) {
-        multipleSelectedCells.value[i][colIndex] = false;
+    if (event.shiftKey) {
+      if (isNaN(startPointer.value[0]) || isNaN(startPointer.value[1])) {
+        startPointer.value = [rowIndex, colIndex];
+        multipleSelectedCells.value[rowIndex][colIndex] = true;
+        multipleSelectedCells.value[rowIndex][colIndex - 1] = true;
+      } else if (startPointer.value[1] >= colIndex) {
+        for (let j = startPointer.value[0]; j <= rowIndex; j++) {
+          multipleSelectedCells.value[j][colIndex] = true;
+          multipleSelectedCells.value[j][colIndex - 1] = true;
+        }
+        for (let i = rowIndex; i <= startPointer.value[0]; i++) {
+          multipleSelectedCells.value[i][colIndex] = true;
+          multipleSelectedCells.value[i][colIndex - 1] = true;
+        }
+      } else {
+        for (let j = startPointer.value[0]; j <= rowIndex; j++) {
+          multipleSelectedCells.value[j][colIndex] = false;
+        }
+        for (let i = rowIndex; i <= startPointer.value[0]; i++) {
+          multipleSelectedCells.value[i][colIndex] = false;
+        }
       }
     }
   }
@@ -328,14 +304,6 @@ onUpdated(() => {
             @keydown.down="moveDown(rowIndex, colIndex, $event)"
             @keydown.right="moveRight(rowIndex, colIndex, $event)"
             @keydown.left="moveLeft(rowIndex, colIndex, $event)"
-            @keydown.ctrl.up="moveAllUp(rowIndex, colIndex)"
-            @keydown.ctrl.down="moveAllDown(rowIndex, colIndex)"
-            @keydown.ctrl.right="moveAllRight(rowIndex, colIndex)"
-            @keydown.ctrl.left="moveAllLeft(rowIndex, colIndex)"
-            @keydown.shift.up="moveUpWithShift(rowIndex, colIndex)"
-            @keydown.shift.down="moveDownWithShift(rowIndex, colIndex)"
-            @keydown.shift.right="moveRightWithShift(rowIndex, colIndex)"
-            @keydown.shift.left="moveLeftWithShift(rowIndex, colIndex)"
             @keydown.delete="cellDelete(rowIndex, colIndex)"
             @keydown.ctrl.c="cellCopy(rowIndex, colIndex)"
             @keydown.ctrl.v="cellPaste(rowIndex, colIndex)"
