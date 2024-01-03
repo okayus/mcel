@@ -287,7 +287,7 @@ const cellDelete = (rowIndex: number, colIndex: number) => {
 
 const cellCopy = (rowIndex: number, colIndex: number) => {
   let copyText = '';
-  if(isNaN(startPointer.value[0])) {
+  if (isNaN(startPointer.value[0])) {
     copyText = inputValues.value[rowIndex][colIndex];
   } else {
     for (
@@ -300,11 +300,13 @@ const cellCopy = (rowIndex: number, colIndex: number) => {
         j <= Math.max(startPointer.value[1], foucusedPointer.value[1]);
         j++
       ) {
-        copyText += j === Math.max(startPointer.value[1], foucusedPointer.value[1]) 
-        ? inputValues.value[i][j] + '\n'
-        : inputValues.value[i][j] + '\t';
+        copyText +=
+          j === Math.max(startPointer.value[1], foucusedPointer.value[1])
+            ? inputValues.value[i][j] + '\n'
+            : inputValues.value[i][j] + '\t';
       }
     }
+    copyText = copyText.slice(0, -2);
   }
   navigator.clipboard.writeText(copyText);
 };
@@ -319,6 +321,7 @@ const cellPaste = (rowIndex: number, colIndex: number) => {
         convertedValues.value[rowIndex + i][colIndex + j] = marked(
           clipTextArrayRow[j]
         );
+        multipleSelectedCells.value[rowIndex + i][colIndex + j] = true;
       }
     }
   });
