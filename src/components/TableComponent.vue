@@ -20,6 +20,7 @@ const multipleSelectedCells = ref<boolean[][]>(
   initializeArray(rows.value, cols.value, false)
 );
 const startPointer = ref<number[]>([NaN, NaN]);
+const foucusedPointer = ref<number[]>([NaN, NaN]);
 
 function initializeArray(
   rows: number,
@@ -64,19 +65,19 @@ const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
 
 const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   event.preventDefault();
-  let foucusedPointer: number[] = [rowIndex, colIndex];
+  foucusedPointer.value = [rowIndex, colIndex];
   if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
     if (event.ctrlKey) {
       for (let i = rowIndex; i > 0; i--) {
         handleCellClick(i - 1, colIndex);
-        foucusedPointer = [i - 1, colIndex];
+        foucusedPointer.value = [i - 1, colIndex];
         if (inputValues.value[i - 1][colIndex] !== '') {
           break;
         }
       }
     } else {
       handleCellClick(rowIndex - 1, colIndex);
-      foucusedPointer = [rowIndex - 1, colIndex];
+      foucusedPointer.value = [rowIndex - 1, colIndex];
     }
     if (event.shiftKey) {
       startPointer.value[0] = isNaN(startPointer.value[0])
@@ -86,18 +87,18 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
         ? colIndex
         : startPointer.value[1];
       for (
-        let i = Math.max(rowIndex, foucusedPointer[0]);
-        i >= Math.min(rowIndex, foucusedPointer[0]);
+        let i = Math.max(rowIndex, foucusedPointer.value[0]);
+        i >= Math.min(rowIndex, foucusedPointer.value[0]);
         i--
       ) {
         for (
-          let j = Math.min(startPointer.value[1], foucusedPointer[1]);
-          j <= Math.max(startPointer.value[1], foucusedPointer[1]);
+          let j = Math.min(startPointer.value[1], foucusedPointer.value[1]);
+          j <= Math.max(startPointer.value[1], foucusedPointer.value[1]);
           j++
         ) {
-          if (foucusedPointer[0] > startPointer.value[0]) {
+          if (foucusedPointer.value[0] > startPointer.value[0]) {
             multipleSelectedCells.value[rowIndex][j] = false;
-            multipleSelectedCells.value[foucusedPointer[0]][j] = true;
+            multipleSelectedCells.value[foucusedPointer.value[0]][j] = true;
           } else {
             multipleSelectedCells.value[i][j] =
               i <= startPointer.value[0] ? true : false;
@@ -117,19 +118,18 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
 
 const moveDown = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   event.preventDefault();
-  let foucusedPointer: number[] = [rowIndex, colIndex];
   if (rowIndex < rows.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
     if (event.ctrlKey) {
       for (let i = rowIndex; i < rows.value - 1; i++) {
         handleCellClick(i + 1, colIndex);
-        foucusedPointer = [i + 1, colIndex];
+        foucusedPointer.value = [i + 1, colIndex];
         if (inputValues.value[i + 1][colIndex] !== '') {
           break;
         }
       }
     } else {
       handleCellClick(rowIndex + 1, colIndex);
-      foucusedPointer = [rowIndex + 1, colIndex];
+      foucusedPointer.value = [rowIndex + 1, colIndex];
     }
     if (event.shiftKey) {
       startPointer.value[0] = isNaN(startPointer.value[0])
@@ -139,22 +139,22 @@ const moveDown = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
         ? colIndex
         : startPointer.value[1];
       for (
-        let i = Math.min(rowIndex, foucusedPointer[0]);
-        i <= Math.max(rowIndex, foucusedPointer[0]);
+        let i = Math.min(rowIndex, foucusedPointer.value[0]);
+        i <= Math.max(rowIndex, foucusedPointer.value[0]);
         i++
       ) {
         for (
-          let j = Math.min(startPointer.value[1], foucusedPointer[1]);
-          j <= Math.max(startPointer.value[1], foucusedPointer[1]);
+          let j = Math.min(startPointer.value[1], foucusedPointer.value[1]);
+          j <= Math.max(startPointer.value[1], foucusedPointer.value[1]);
           j++
         ) {
-          if (foucusedPointer[0] >= startPointer.value[0]) {
+          if (foucusedPointer.value[0] >= startPointer.value[0]) {
             multipleSelectedCells.value[i][j] =
               i >= startPointer.value[0] ? true : false;
           } else {
             multipleSelectedCells.value[i][j] = false;
-            if (foucusedPointer[0] === rowIndex + 1) {
-              multipleSelectedCells.value[foucusedPointer[0]][j] = true;
+            if (foucusedPointer.value[0] === rowIndex + 1) {
+              multipleSelectedCells.value[foucusedPointer.value[0]][j] = true;
             }
           }
         }
@@ -176,19 +176,18 @@ const moveRight = (
   event: KeyboardEvent
 ) => {
   event.preventDefault();
-  let foucusedPointer: number[] = [rowIndex, colIndex];
   if (colIndex < cols.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
     if (event.ctrlKey) {
       for (let i = colIndex; i < cols.value - 1; i++) {
         handleCellClick(rowIndex, i + 1);
-        foucusedPointer = [rowIndex, i + 1];
+        foucusedPointer.value = [rowIndex, i + 1];
         if (inputValues.value[rowIndex][i + 1] !== '') {
           break;
         }
       }
     } else {
       handleCellClick(rowIndex, colIndex + 1);
-      foucusedPointer = [rowIndex, colIndex + 1];
+      foucusedPointer.value = [rowIndex, colIndex + 1];
     }
     if (event.shiftKey) {
       startPointer.value[0] = isNaN(startPointer.value[0])
@@ -198,22 +197,22 @@ const moveRight = (
         ? colIndex
         : startPointer.value[1];
       for (
-        let i = Math.min(startPointer.value[0], foucusedPointer[0]);
-        i <= Math.max(startPointer.value[0], foucusedPointer[0]);
+        let i = Math.min(startPointer.value[0], foucusedPointer.value[0]);
+        i <= Math.max(startPointer.value[0], foucusedPointer.value[0]);
         i++
       ) {
         for (
-          let j = Math.min(colIndex, foucusedPointer[1]);
-          j <= Math.max(colIndex, foucusedPointer[1]);
+          let j = Math.min(colIndex, foucusedPointer.value[1]);
+          j <= Math.max(colIndex, foucusedPointer.value[1]);
           j++
         ) {
-          if (foucusedPointer[1] >= startPointer.value[1]) {
+          if (foucusedPointer.value[1] >= startPointer.value[1]) {
             multipleSelectedCells.value[i][j] =
               j >= startPointer.value[1] ? true : false;
           } else {
             multipleSelectedCells.value[i][j] = false;
-            if (foucusedPointer[1] === colIndex + 1) {
-              multipleSelectedCells.value[i][foucusedPointer[1]] = true;
+            if (foucusedPointer.value[1] === colIndex + 1) {
+              multipleSelectedCells.value[i][foucusedPointer.value[1]] = true;
             }
           }
         }
@@ -231,19 +230,18 @@ const moveRight = (
 
 const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   event.preventDefault();
-  let foucusedPointer: number[] = [rowIndex, colIndex];
   if (colIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
     if (event.ctrlKey) {
       for (let i = colIndex; i > 0; i--) {
         handleCellClick(rowIndex, i - 1);
-        foucusedPointer = [rowIndex, i - 1];
+        foucusedPointer.value = [rowIndex, i - 1];
         if (inputValues.value[rowIndex][i - 1] !== '') {
           break;
         }
       }
     } else {
       handleCellClick(rowIndex, colIndex - 1);
-      foucusedPointer = [rowIndex, colIndex - 1];
+      foucusedPointer.value = [rowIndex, colIndex - 1];
     }
     if (event.shiftKey) {
       startPointer.value[0] = isNaN(startPointer.value[0])
@@ -253,18 +251,18 @@ const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
         ? colIndex
         : startPointer.value[1];
       for (
-        let i = Math.min(startPointer.value[0], foucusedPointer[0]);
-        i <= Math.max(startPointer.value[0], foucusedPointer[0]);
+        let i = Math.min(startPointer.value[0], foucusedPointer.value[0]);
+        i <= Math.max(startPointer.value[0], foucusedPointer.value[0]);
         i++
       ) {
         for (
-          let j = Math.min(colIndex, foucusedPointer[1]);
-          j <= Math.max(colIndex, foucusedPointer[1]);
+          let j = Math.min(colIndex, foucusedPointer.value[1]);
+          j <= Math.max(colIndex, foucusedPointer.value[1]);
           j++
         ) {
-          if (foucusedPointer[1] > startPointer.value[1]) {
+          if (foucusedPointer.value[1] > startPointer.value[1]) {
             multipleSelectedCells.value[i][colIndex] = false;
-            multipleSelectedCells.value[i][foucusedPointer[1]] = true;
+            multipleSelectedCells.value[i][foucusedPointer.value[1]] = true;
           } else {
             multipleSelectedCells.value[i][j] =
               j <= startPointer.value[1] ? true : false;
@@ -288,7 +286,26 @@ const cellDelete = (rowIndex: number, colIndex: number) => {
 };
 
 const cellCopy = (rowIndex: number, colIndex: number) => {
-  const copyText = inputValues.value[rowIndex][colIndex];
+  let copyText = '';
+  if(isNaN(startPointer.value[0])) {
+    copyText = inputValues.value[rowIndex][colIndex];
+  } else {
+    for (
+      let i = Math.min(startPointer.value[0], foucusedPointer.value[0]);
+      i <= Math.max(startPointer.value[0], foucusedPointer.value[0]);
+      i++
+    ) {
+      for (
+        let j = Math.min(startPointer.value[1], foucusedPointer.value[1]);
+        j <= Math.max(startPointer.value[1], foucusedPointer.value[1]);
+        j++
+      ) {
+        copyText += j === Math.max(startPointer.value[1], foucusedPointer.value[1]) 
+        ? inputValues.value[i][j] + '\n'
+        : inputValues.value[i][j] + '\t';
+      }
+    }
+  }
   navigator.clipboard.writeText(copyText);
 };
 
