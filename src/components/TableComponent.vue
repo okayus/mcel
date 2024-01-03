@@ -37,13 +37,18 @@ function initializeArray(
   return array;
 }
 
-const handleCellClick = (rowIndex: number, colIndex: number) => {
+const foucusCell = (rowIndex: number, colIndex: number, isClickEvent: boolean) => {
   cellStatus.value[rowIndex][colIndex] = true;
   for (let i = 0; i < rows.value; i++) {
     for (let j = 0; j < cols.value; j++) {
       if (i !== rowIndex || j !== colIndex) {
         cellInputStatus.value[i][j] = false;
         cellStatus.value[i][j] = false;
+      }
+      if(isClickEvent){
+        multipleSelectedCells.value[i][j] = false;
+        startPointer.value = [NaN, NaN];
+        foucusedPointer.value = [NaN, NaN];
       }
     }
   }
@@ -69,14 +74,14 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
     if (event.ctrlKey) {
       for (let i = rowIndex; i > 0; i--) {
-        handleCellClick(i - 1, colIndex);
+        foucusCell(i - 1, colIndex, false);
         foucusedPointer.value = [i - 1, colIndex];
         if (inputValues.value[i - 1][colIndex] !== '') {
           break;
         }
       }
     } else {
-      handleCellClick(rowIndex - 1, colIndex);
+      foucusCell(rowIndex - 1, colIndex, false);
       foucusedPointer.value = [rowIndex - 1, colIndex];
     }
     if (event.shiftKey) {
@@ -107,6 +112,7 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
       }
     } else {
       startPointer.value = [NaN, NaN];
+      foucusedPointer.value = [NaN, NaN];
       for (let i = 0; i < rows.value; i++) {
         for (let j = 0; j < cols.value; j++) {
           multipleSelectedCells.value[i][j] = false;
@@ -121,14 +127,14 @@ const moveDown = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   if (rowIndex < rows.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
     if (event.ctrlKey) {
       for (let i = rowIndex; i < rows.value - 1; i++) {
-        handleCellClick(i + 1, colIndex);
+        foucusCell(i + 1, colIndex, false);
         foucusedPointer.value = [i + 1, colIndex];
         if (inputValues.value[i + 1][colIndex] !== '') {
           break;
         }
       }
     } else {
-      handleCellClick(rowIndex + 1, colIndex);
+      foucusCell(rowIndex + 1, colIndex, false);
       foucusedPointer.value = [rowIndex + 1, colIndex];
     }
     if (event.shiftKey) {
@@ -179,14 +185,14 @@ const moveRight = (
   if (colIndex < cols.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
     if (event.ctrlKey) {
       for (let i = colIndex; i < cols.value - 1; i++) {
-        handleCellClick(rowIndex, i + 1);
+        foucusCell(rowIndex, i + 1, false);
         foucusedPointer.value = [rowIndex, i + 1];
         if (inputValues.value[rowIndex][i + 1] !== '') {
           break;
         }
       }
     } else {
-      handleCellClick(rowIndex, colIndex + 1);
+      foucusCell(rowIndex, colIndex + 1, false);
       foucusedPointer.value = [rowIndex, colIndex + 1];
     }
     if (event.shiftKey) {
@@ -233,14 +239,14 @@ const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   if (colIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
     if (event.ctrlKey) {
       for (let i = colIndex; i > 0; i--) {
-        handleCellClick(rowIndex, i - 1);
+        foucusCell(rowIndex, i - 1, false);
         foucusedPointer.value = [rowIndex, i - 1];
         if (inputValues.value[rowIndex][i - 1] !== '') {
           break;
         }
       }
     } else {
-      handleCellClick(rowIndex, colIndex - 1);
+      foucusCell(rowIndex, colIndex - 1, false);
       foucusedPointer.value = [rowIndex, colIndex - 1];
     }
     if (event.shiftKey) {
@@ -353,7 +359,7 @@ const handleEnterPress = (rowIndex: number, colIndex: number) => {
   convertedValues.value[rowIndex][colIndex] = marked(
     inputValues.value[rowIndex][colIndex]
   );
-  handleCellClick(rowIndex, colIndex);
+  foucusCell(rowIndex, colIndex, false);
   cellInputStatus.value[rowIndex][colIndex] = false;
 };
 
@@ -387,7 +393,7 @@ onUpdated(() => {
         <td
           v-for="(cell, colIndex) in cols"
           :key="colIndex"
-          @click="handleCellClick(rowIndex, colIndex)"
+          @click="foucusCell(rowIndex, colIndex, true)"
           :class="{ multiSelected: multipleSelectedCells[rowIndex][colIndex] }"
           :id="rowIndex + '-' + colIndex"
         >
