@@ -311,8 +311,16 @@ const cellCopy = (rowIndex: number, colIndex: number) => {
 
 const cellPaste = (rowIndex: number, colIndex: number) => {
   navigator.clipboard.readText().then((clipText) => {
-    inputValues.value[rowIndex][colIndex] = clipText;
-    convertedValues.value[rowIndex][colIndex] = marked(clipText);
+    const clipTextArray = clipText.split('\n');
+    for (let i = 0; i < clipTextArray.length; i++) {
+      const clipTextArrayRow = clipTextArray[i].split('\t');
+      for (let j = 0; j < clipTextArrayRow.length; j++) {
+        inputValues.value[rowIndex + i][colIndex + j] = clipTextArrayRow[j];
+        convertedValues.value[rowIndex + i][colIndex + j] = marked(
+          clipTextArrayRow[j]
+        );
+      }
+    }
   });
 };
 
