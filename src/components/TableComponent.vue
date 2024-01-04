@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref, onUpdated } from 'vue';
+import { ref, onUpdated, defineEmits } from 'vue';
 import { marked } from 'marked';
+import ContextMenu from '@imengyu/vue3-context-menu'
+import { detectMarkdownType } from '../lib/MarkdownDetector';
 
 const rows = ref<number>(20);
 const cols = ref<number>(20);
@@ -36,6 +38,13 @@ function initializeArray(
   }
   return array;
 }
+
+const emits = defineEmits(['update:rows', 'update:cols']);
+
+const emitsFunc = () => {
+  emits('update:rows', rows.value);
+  emits('update:cols', cols.value);
+};
 
 const foucusCell = (rowIndex: number, colIndex: number, isClickEvent: boolean) => {
   cellStatus.value[rowIndex][colIndex] = true;
@@ -384,10 +393,37 @@ onUpdated(() => {
     (focusedCellElement as HTMLElement).focus();
   }
 });
+
+
+const onContextMenu = (e: MouseEvent) => {
+    e.preventDefault();
+  //show your menu
+  ContextMenu.showContextMenu({
+    x: e.x,
+    y: e.y,
+    items: [
+      { 
+        label: "A menu item", 
+        onClick: () => {
+          const type = detectMarkdownType("# hoge");
+          alert(type);
+        }
+      },
+      { 
+        label: "A submenu", 
+        children: [
+          { label: "Item1" },
+          { label: "Item2" },
+          { label: "Item3" },
+        ]
+      },
+    ]
+  });
+}
 </script>
 
 <template>
-  <div id="app">
+  <div id="app" class="box" @contextmenu="onContextMenu($event)">
     <table class="spreadsheet">
       <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
         <td
