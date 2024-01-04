@@ -1,15 +1,4 @@
-<template>
-    <div class="box" @contextmenu="onContextMenu($event)">
-    <HeaderMenu />
-    <div>
-      <table-component />
-    </div>
-  </div>
-</template>
-
-<script lang="ts" setup>
-import HeaderMenu from './components/HeaderMenu.vue';
-import TableComponent from './components/TableComponent.vue';
+<script setup lang="ts">
 import ContextMenu from '@imengyu/vue3-context-menu'
 
 const onContextMenu = (e: MouseEvent) => {
@@ -37,7 +26,8 @@ const onContextMenu = (e: MouseEvent) => {
   });
 }
 </script>
-
-<style scoped>
-/* コンポーネント専用のスタイルはここに記述 */
-</style>
+```
+<template>
+  <div class="box" @contextmenu="onContextMenu($event)">
+  </div>
+</template>
