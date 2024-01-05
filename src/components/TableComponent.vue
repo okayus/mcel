@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onUpdated } from 'vue';
 import { marked } from 'marked';
-import ContextMenu from '@imengyu/vue3-context-menu'
+import ContextMenu from '@imengyu/vue3-context-menu';
 import { detectMarkdownType } from '../lib/MarkdownDetector';
 
 const rows = ref<number>(20);
@@ -39,7 +39,11 @@ function initializeArray(
   return array;
 }
 
-const foucusCell = (rowIndex: number, colIndex: number, isClickEvent: boolean) => {
+const foucusCell = (
+  rowIndex: number,
+  colIndex: number,
+  isClickEvent: boolean
+) => {
   cellStatus.value[rowIndex][colIndex] = true;
   for (let i = 0; i < rows.value; i++) {
     for (let j = 0; j < cols.value; j++) {
@@ -47,7 +51,7 @@ const foucusCell = (rowIndex: number, colIndex: number, isClickEvent: boolean) =
         cellInputStatus.value[i][j] = false;
         cellStatus.value[i][j] = false;
       }
-      if(isClickEvent){
+      if (isClickEvent) {
         multipleSelectedCells.value[i][j] = false;
         startPointer.value = [NaN, NaN];
         foucusedPointer.value = [NaN, NaN];
@@ -114,7 +118,6 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
       }
     } else {
       startPointer.value = [NaN, NaN];
-      foucusedPointer.value = [NaN, NaN];
       for (let i = 0; i < rows.value; i++) {
         for (let j = 0; j < cols.value; j++) {
           multipleSelectedCells.value[i][j] = false;
@@ -387,36 +390,57 @@ onUpdated(() => {
   }
 });
 
+// shift + f10でマウスイベントを発火させる
+const shortcutMousuEvent = (e: KeyboardEvent) => {
+  if (e.shiftKey && e.key === 'F10') {
+    const mouseEvent = new MouseEvent('contextmenu', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 0,
+      clientY: 0,
+    });
+    document.getElementById('app')?.dispatchEvent(mouseEvent);
+  }
+};
 
 const onContextMenu = (e: MouseEvent) => {
-    e.preventDefault();
+  e.preventDefault();
+  //tableのフォーカスを外す
+  const focusedCellElement = document.querySelector('.selected');
+  if (focusedCellElement) {
+    (focusedCellElement as HTMLElement).blur();
+  }
   //show your menu
   ContextMenu.showContextMenu({
     x: e.x,
     y: e.y,
     items: [
-      { 
-        label: "A menu item", 
+      {
+        label: 'A menu item',
         onClick: () => {
-          const type = detectMarkdownType("# hoge");
+          const type = detectMarkdownType('# hoge');
           alert(type);
-        }
+          if (focusedCellElement) {
+            (focusedCellElement as HTMLElement).focus();
+          }
+        },
       },
-      { 
-        label: "A submenu", 
-        children: [
-          { label: "Item1" },
-          { label: "Item2" },
-          { label: "Item3" },
-        ]
+      {
+        label: 'A submenu',
+        children: [{ label: 'Item1' }, { label: 'Item2' }, { label: 'Item3' }],
       },
-    ]
+    ],
   });
-}
+};
 </script>
 
 <template>
-  <div id="app" class="box" @contextmenu="onContextMenu($event)">
+  <div
+    id="app"
+    class="box"
+    @contextmenu="onContextMenu($event)"
+    @keydown.shift.f10="shortcutMousuEvent($event)"
+  >
     <table class="spreadsheet">
       <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
         <td
