@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onUpdated, defineEmits } from 'vue';
+import { ref, onUpdated } from 'vue';
 import { marked } from 'marked';
 import ContextMenu from '@imengyu/vue3-context-menu'
 import { detectMarkdownType } from '../lib/MarkdownDetector';
@@ -38,13 +38,6 @@ function initializeArray(
   }
   return array;
 }
-
-const emits = defineEmits(['update:rows', 'update:cols']);
-
-const emitsFunc = () => {
-  emits('update:rows', rows.value);
-  emits('update:cols', cols.value);
-};
 
 const foucusCell = (rowIndex: number, colIndex: number, isClickEvent: boolean) => {
   cellStatus.value[rowIndex][colIndex] = true;
