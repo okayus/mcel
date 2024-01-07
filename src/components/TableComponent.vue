@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { ref, onUpdated } from 'vue';
+import { ref, onUpdated ,defineEmits } from 'vue';
 import { marked } from 'marked';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { detectMarkdownType } from '../lib/MarkdownDetector';
+import { emit } from 'process';
 
 const rows = ref<number>(20);
 const cols = ref<number>(20);
 const inputValues = ref<string[][]>(
+  initializeArray(rows.value, cols.value, '')
+);
+const markdownType = ref<string[][]>(
   initializeArray(rows.value, cols.value, '')
 );
 const convertedValues = ref<any[][]>(
@@ -38,6 +42,16 @@ function initializeArray(
   }
   return array;
 }
+
+const emit = defineEmits(['receiveCellValues']);
+const passCellValues = (rowIndex: number,colIndex: number) => {
+  const cellValues = {
+    rowIndex: rowIndex,
+    colIndex: colIndex,
+    cellValue: inputValues.value[rowIndex][colIndex],
+  };
+  emit('receiveCellValues', cellValues);
+};
 
 const foucusCell = (
   rowIndex: number,
@@ -366,6 +380,7 @@ const handleEnterPress = (rowIndex: number, colIndex: number) => {
   );
   foucusCell(rowIndex, colIndex, false);
   cellInputStatus.value[rowIndex][colIndex] = false;
+  passCellValues(rowIndex,colIndex);
 };
 
 const handleCellBlur = (rowIndex: number, colIndex: number) => {
