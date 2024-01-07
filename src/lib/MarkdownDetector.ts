@@ -30,5 +30,5 @@ export function detectMarkdownType(input: string): string | null {
         }
     }
 
-    return null;
+    return "text";
 }

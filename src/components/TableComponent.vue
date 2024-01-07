@@ -3,7 +3,6 @@ import { ref, onUpdated ,defineEmits } from 'vue';
 import { marked } from 'marked';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { detectMarkdownType } from '../lib/MarkdownDetector';
-import { emit } from 'process';
 
 const rows = ref<number>(20);
 const cols = ref<number>(20);
@@ -138,6 +137,7 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
         }
       }
     }
+    passCellValues(foucusedPointer.value[0],foucusedPointer.value[1]);
   }
 };
 
@@ -192,6 +192,7 @@ const moveDown = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
         }
       }
     }
+    passCellValues(foucusedPointer.value[0],foucusedPointer.value[1]);
   }
 };
 
@@ -250,6 +251,7 @@ const moveRight = (
         }
       }
     }
+    passCellValues(foucusedPointer.value[0],foucusedPointer.value[1]);
   }
 };
 
@@ -302,6 +304,7 @@ const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
         }
       }
     }
+    passCellValues(foucusedPointer.value[0],foucusedPointer.value[1]);
   }
 };
 
@@ -475,6 +478,7 @@ const onContextMenu = (e: MouseEvent) => {
           <div
             v-else
             :class="{ selected: cellStatus[rowIndex][colIndex] }"
+            :id="rowIndex + '-' + colIndex"
             @dblclick="handleCellDoubleClick(rowIndex, colIndex)"
             @keydown.enter="handleCellDoubleClick(rowIndex, colIndex)"
             @keydown.f2="handleCellDoubleClick(rowIndex, colIndex)"

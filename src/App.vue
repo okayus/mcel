@@ -1,5 +1,5 @@
 <template>
-    <HeaderMenu />
+    <HeaderMenu :cellValues="cellValues"/>
     <div>
       <table-component @receiveCellValues="testFn"/>
     </div>
@@ -8,9 +8,14 @@
 <script lang="ts" setup>
 import HeaderMenu from './components/HeaderMenu.vue';
 import TableComponent from './components/TableComponent.vue';
+import { reactive } from 'vue';
 
+const cellValues = reactive({
+  value: ''
+});
 const testFn = (e: any) => {
   console.log(e);
+  return cellValues.value = e;
 }
 </script>
 
