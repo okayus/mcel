@@ -1,7 +1,7 @@
 <template>
     <HeaderMenu :cellValues="cellValues"/>
     <div>
-      <table-component @receiveCellValues="testFn"/>
+      <table-component @receiveCellValues="receiveCellValues"/>
     </div>
 </template>
 
@@ -13,8 +13,7 @@ import { reactive } from 'vue';
 const cellValues = reactive({
   value: ''
 });
-const testFn = (e: any) => {
-  console.log(e);
+const receiveCellValues = (e: any) => {
   return cellValues.value = e;
 }
 </script>

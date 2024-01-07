@@ -38,7 +38,7 @@ watchEffect(() => {
   if (!select) return;
   markdownType.value = detectMarkdownType(cellValues);
   if (select) {
-    select.value = markdownType.value;
+    select.value = !markdownType.value ? 'text' : markdownType.value ;
   }
 });
 </script>
