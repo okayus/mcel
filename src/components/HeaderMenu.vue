@@ -1,6 +1,6 @@
 <template>
   <div>
-    <select>
+    <select @change="changeOption($event)">
       <option value="text">テキスト</option>
       <optgroup label="見出し">
         <option value="h1">見出し1</option>
@@ -20,8 +20,9 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref, watchEffect } from 'vue';
+import { defineProps, ref, watchEffect, defineEmits, onMounted } from 'vue';
 import { detectMarkdownType } from '@/lib/MarkdownDetector';
+import type { convertMarkdownType } from '@/lib/MarkdownConverter';
 
 const markdownType = ref<string | null>('');
 
@@ -32,13 +33,27 @@ const props = defineProps({
   },
 });
 
-watchEffect(() => {
-  const cellValues = props.cellValues.value.cellValue;
+  watchEffect(() => {
+    if(!props.cellValues.value) return;
+    const cellValues = props.cellValues.value.cellValue;
+    const select = document.querySelector('select');
+    markdownType.value = detectMarkdownType(cellValues);
+    if (select) {
+      select.value = !markdownType.value ? 'text' : markdownType.value ;
+    }
+  });
+
+const emit = defineEmits(['receiveMarkdownType']);
+const passMarkdownType = (changeOption: any) => {
+  emit('receiveMarkdownType', changeOption);
+}
+
+const changeOption = (e:any) => {
+  markdownType.value = e.target.value;
+  passMarkdownType(e.target.value);
   const select = document.querySelector('select');
-  if (!select) return;
-  markdownType.value = detectMarkdownType(cellValues);
-  if (select) {
-    select.value = !markdownType.value ? 'text' : markdownType.value ;
-  }
-});
+  select?.blur();
+  const selectedCell = document.querySelector('.selected');
+  selectedCell?.focus();
+}
 </script>
