@@ -88,9 +88,32 @@ const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
   }
 };
 
-const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
+const hadleCellMovement = (
+  rowIndex: number,
+  colIndex: number,
+  event: KeyboardEvent
+) => {
   event.preventDefault();
   foucusedPointer.value = [rowIndex, colIndex];
+  if (event.key === 'ArrowUp') {
+    moveUp(rowIndex, colIndex, event);
+  } else if (event.key === 'ArrowDown') {
+    moveDown(rowIndex, colIndex, event);
+  } else if (event.key === 'ArrowRight') {
+    moveRight(rowIndex, colIndex, event);
+  } else if (event.key === 'ArrowLeft') {
+    moveLeft(rowIndex, colIndex, event);
+  }
+  markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
+      detectMarkdownType(
+        inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]]
+      );
+    selectedOption.value =
+      markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]];
+    passCellValues(foucusedPointer.value[0], foucusedPointer.value[1]);
+};
+
+const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
     if (event.ctrlKey) {
       for (let i = rowIndex; i > 0; i--) {
@@ -138,13 +161,6 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
         }
       }
     }
-    markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
-      detectMarkdownType(
-        inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]]
-      );
-    selectedOption.value =
-      markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]];
-    passCellValues(foucusedPointer.value[0], foucusedPointer.value[1]);
   }
 };
 
@@ -199,7 +215,6 @@ const moveDown = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
         }
       }
     }
-    passCellValues(foucusedPointer.value[0], foucusedPointer.value[1]);
   }
 };
 
@@ -258,7 +273,6 @@ const moveRight = (
         }
       }
     }
-    passCellValues(foucusedPointer.value[0], foucusedPointer.value[1]);
   }
 };
 
@@ -311,7 +325,6 @@ const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
         }
       }
     }
-    passCellValues(foucusedPointer.value[0], foucusedPointer.value[1]);
   }
 };
 
@@ -508,10 +521,10 @@ const onContextMenu = (e: MouseEvent) => {
             @dblclick="handleCellDoubleClick(rowIndex, colIndex)"
             @keydown.enter="handleCellDoubleClick(rowIndex, colIndex)"
             @keydown.f2="handleCellDoubleClick(rowIndex, colIndex)"
-            @keydown.up="moveUp(rowIndex, colIndex, $event)"
-            @keydown.down="moveDown(rowIndex, colIndex, $event)"
-            @keydown.right="moveRight(rowIndex, colIndex, $event)"
-            @keydown.left="moveLeft(rowIndex, colIndex, $event)"
+            @keydown.up="hadleCellMovement(rowIndex, colIndex, $event)"
+            @keydown.down="hadleCellMovement(rowIndex, colIndex, $event)"
+            @keydown.right="hadleCellMovement(rowIndex, colIndex, $event)"
+            @keydown.left="hadleCellMovement(rowIndex, colIndex, $event)"
             @keydown.delete="cellDelete(rowIndex, colIndex)"
             @keydown.ctrl.c="cellCopy(rowIndex, colIndex)"
             @keydown.ctrl.v="cellPaste(rowIndex, colIndex)"

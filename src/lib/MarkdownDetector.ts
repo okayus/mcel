@@ -1,4 +1,4 @@
-export function detectMarkdownType(input: string): string | null {
+export function detectMarkdownType(input: string): string {
     const trimmedInput = input.trim();
 
     // inputのhtmlタグからマークダウンの種類を検出する。
