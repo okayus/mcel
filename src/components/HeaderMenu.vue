@@ -1,6 +1,8 @@
 <template>
   <div>
-    <select @change="changeOption($event)">
+    <select
+    @change="changeOption($event)"
+    >
       <option value="text">テキスト</option>
       <optgroup label="見出し">
         <option value="h1">見出し1</option>
@@ -32,28 +34,31 @@ const props = defineProps({
     required: true,
   },
 });
+const select = ref<HTMLSelectElement | null>(null);
 
-  watchEffect(() => {
-    if(!props.cellValues.value) return;
-    const cellValues = props.cellValues.value.cellValue;
-    const select = document.querySelector('select');
-    markdownType.value = detectMarkdownType(cellValues);
-    if (select) {
-      select.value = !markdownType.value ? 'text' : markdownType.value ;
-    }
-  });
+onMounted(() => {
+  select.value = document.querySelector('select');
+});
+
+watchEffect(() => {
+  if (!props.cellValues.value) return;
+  const cellValues = props.cellValues.value.cellValue;
+  markdownType.value = detectMarkdownType(cellValues);
+  if (select) {
+    select.value.value = !markdownType.value ? 'text' : markdownType.value;
+  }
+});
 
 const emit = defineEmits(['receiveMarkdownType']);
 const passMarkdownType = (changeOption: any) => {
   emit('receiveMarkdownType', changeOption);
-}
+};
 
-const changeOption = (e:any) => {
+const changeOption = (e: any) => {
   markdownType.value = e.target.value;
   passMarkdownType(e.target.value);
-  const select = document.querySelector('select');
-  select?.blur();
-  const selectedCell = document.querySelector('.selected');
-  selectedCell?.focus();
-}
+  // select?.blur();
+  // const selectedCell = document.querySelector('.selected');
+  // selectedCell?.focus();
+};
 </script>
