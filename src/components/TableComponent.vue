@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onUpdated ,defineEmits } from 'vue';
+import { ref, onUpdated, defineEmits } from 'vue';
 import { marked } from 'marked';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { detectMarkdownType } from '../lib/MarkdownDetector';
@@ -9,8 +9,9 @@ const cols = ref<number>(20);
 const inputValues = ref<string[][]>(
   initializeArray(rows.value, cols.value, '')
 );
+const selectedOption = ref<string>('text');
 const markdownType = ref<string[][]>(
-  initializeArray(rows.value, cols.value, '')
+  initializeArray(rows.value, cols.value, 'text')
 );
 const convertedValues = ref<any[][]>(
   initializeArray(rows.value, cols.value, '')
@@ -43,7 +44,7 @@ function initializeArray(
 }
 
 const emit = defineEmits(['receiveCellValues']);
-const passCellValues = (rowIndex: number,colIndex: number) => {
+const passCellValues = (rowIndex: number, colIndex: number) => {
   const cellValues = {
     rowIndex: rowIndex,
     colIndex: colIndex,
@@ -137,7 +138,13 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
         }
       }
     }
-    passCellValues(foucusedPointer.value[0],foucusedPointer.value[1]);
+    markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
+      detectMarkdownType(
+        inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]]
+      );
+    selectedOption.value =
+      markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]];
+    passCellValues(foucusedPointer.value[0], foucusedPointer.value[1]);
   }
 };
 
@@ -192,7 +199,7 @@ const moveDown = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
         }
       }
     }
-    passCellValues(foucusedPointer.value[0],foucusedPointer.value[1]);
+    passCellValues(foucusedPointer.value[0], foucusedPointer.value[1]);
   }
 };
 
@@ -251,7 +258,7 @@ const moveRight = (
         }
       }
     }
-    passCellValues(foucusedPointer.value[0],foucusedPointer.value[1]);
+    passCellValues(foucusedPointer.value[0], foucusedPointer.value[1]);
   }
 };
 
@@ -304,7 +311,7 @@ const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
         }
       }
     }
-    passCellValues(foucusedPointer.value[0],foucusedPointer.value[1]);
+    passCellValues(foucusedPointer.value[0], foucusedPointer.value[1]);
   }
 };
 
@@ -383,7 +390,7 @@ const handleEnterPress = (rowIndex: number, colIndex: number) => {
   );
   foucusCell(rowIndex, colIndex, false);
   cellInputStatus.value[rowIndex][colIndex] = false;
-  passCellValues(rowIndex,colIndex);
+  passCellValues(rowIndex, colIndex);
 };
 
 const handleCellBlur = (rowIndex: number, colIndex: number) => {
@@ -453,6 +460,25 @@ const onContextMenu = (e: MouseEvent) => {
 </script>
 
 <template>
+  <div>
+    <select v-model="selectedOption">
+      <option value="text">テキスト</option>
+      <optgroup label="見出し">
+        <option value="h1">見出し1</option>
+        <option value="h2">見出し2</option>
+        <option value="h3">見出し3</option>
+        <option value="h4">見出し4</option>
+        <option value="h5">見出し5</option>
+        <option value="h6">見出し6</option>
+      </optgroup>
+      <optgroup label="リスト">
+        <option value="ul">箇条書きリスト</option>
+        <option value="ol">番号付きリスト</option>
+      </optgroup>
+      <option value="blockquote">引用</option>
+    </select>
+  </div>
+
   <div
     id="app"
     class="box"
@@ -544,29 +570,29 @@ td div {
   background-color: #e6f3ff;
 }
 
-blockquote{
-  position:relative;
-  border-left:3px double #997bad;
-  padding-left:10px;
-  background:#e5e6f4;
+blockquote {
+  position: relative;
+  border-left: 3px double #997bad;
+  padding-left: 10px;
+  background: #e5e6f4;
 }
-blockquote:before{
-  position:absolute;
-  font-family:'FontAwesome';
-  content:'\f10d';
+blockquote:before {
+  position: absolute;
+  font-family: 'FontAwesome';
+  content: '\f10d';
   font-size: 18px;
-  color:#997bad;
-  padding-top:10px;
+  color: #997bad;
+  padding-top: 10px;
 }
-blockquote p{
-  position:relative;
+blockquote p {
+  position: relative;
   padding: 30px 10px 0px;
 }
-blockquote cite{
+blockquote cite {
   display: block;
-  font-size:0.8rem;
-  color:#997bad;
-  text-align:right;
-  padding:10px;
+  font-size: 0.8rem;
+  color: #997bad;
+  text-align: right;
+  padding: 10px;
 }
 </style>
