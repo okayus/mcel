@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onUpdated, defineEmits } from 'vue';
+import { ref, onUpdated } from 'vue';
 import { marked } from 'marked';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { detectMarkdownType } from '../lib/MarkdownDetector';
@@ -82,16 +82,6 @@ const changeOption = (e: any) => {
     marked(
       inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]]
     );
-};
-
-const emit = defineEmits(['receiveCellValues']);
-const passCellValues = (rowIndex: number, colIndex: number) => {
-  const cellValues = {
-    rowIndex: rowIndex,
-    colIndex: colIndex,
-    cellValue: inputValues.value[rowIndex][colIndex],
-  };
-  emit('receiveCellValues', cellValues);
 };
 
 const foucusCell = (
