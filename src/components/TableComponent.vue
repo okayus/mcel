@@ -57,7 +57,9 @@ const changeOption = (e: any) => {
         j <= Math.max(startPointer.value[1], foucusedPointer.value[1]);
         j++
       ) {
-        inputValues.value[i][j] = convertMarkdownType(
+        inputValues.value[i][j] = !inputValues.value[i][j] 
+        ? inputValues.value[i][j]
+        : convertMarkdownType(
           inputValues.value[i][j],
           markdownType.value[i][j],
           selectedOption.value
