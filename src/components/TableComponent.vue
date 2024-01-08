@@ -110,7 +110,6 @@ const hadleCellMovement = (
       );
     selectedOption.value =
       markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]];
-    passCellValues(foucusedPointer.value[0], foucusedPointer.value[1]);
 };
 
 const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
@@ -403,7 +402,10 @@ const handleEnterPress = (rowIndex: number, colIndex: number) => {
   );
   foucusCell(rowIndex, colIndex, false);
   cellInputStatus.value[rowIndex][colIndex] = false;
-  passCellValues(rowIndex, colIndex);
+  markdownType.value[rowIndex][colIndex] = detectMarkdownType(
+    inputValues.value[rowIndex][colIndex]
+  );
+  selectedOption.value = markdownType.value[rowIndex][colIndex];
 };
 
 const handleCellBlur = (rowIndex: number, colIndex: number) => {
