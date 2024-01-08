@@ -543,4 +543,30 @@ td div {
   /* 背景を薄い青にする */
   background-color: #e6f3ff;
 }
+
+blockquote{
+  position:relative;
+  border-left:3px double #997bad;
+  padding-left:10px;
+  background:#e5e6f4;
+}
+blockquote:before{
+  position:absolute;
+  font-family:'FontAwesome';
+  content:'\f10d';
+  font-size: 18px;
+  color:#997bad;
+  padding-top:10px;
+}
+blockquote p{
+  position:relative;
+  padding: 30px 10px 0px;
+}
+blockquote cite{
+  display: block;
+  font-size:0.8rem;
+  color:#997bad;
+  text-align:right;
+  padding:10px;
+}
 </style>
