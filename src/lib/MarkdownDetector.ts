@@ -1,8 +1,7 @@
 export function detectMarkdownType(input: string): string {
     const trimmedInput = input.trim();
 
-    // inputのhtmlタグからマークダウンの種類を検出する。
-    const convertedValues = [
+    const markdownTypes = [
         { key: 'h1', value: '# ' },
         { key: 'h2', value: '## ' },
         { key: 'h3', value: '### ' },
@@ -14,9 +13,9 @@ export function detectMarkdownType(input: string): string {
         { key: 'ol', value: '1. ' },
     ];
 
-    for (const convertedValue of convertedValues) {
-        if (trimmedInput.startsWith(convertedValue.value)) {
-            return convertedValue.key;
+    for (const markdownType of markdownTypes) {
+        if (trimmedInput.startsWith(markdownType.value)) {
+            return markdownType.key;
         }
     }
 

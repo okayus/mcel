@@ -3,15 +3,28 @@ export function convertMarkdownType(
   fromType: string,
   toType: string
 ): string {
-  // マークダウンの種類を表すプレフィックスを作成
-  const fromPrefix = Array(fromType.length + 1).join('#');
-  const toPrefix = Array(toType.length + 1).join('#');
+  const markdownTypes = [
+    { key: 'h1', value: '# ' },
+    { key: 'h2', value: '## ' },
+    { key: 'h3', value: '### ' },
+    { key: 'h4', value: '#### ' },
+    { key: 'h5', value: '##### ' },
+    { key: 'h6', value: '###### ' },
+    { key: 'blockquote', value: '> ' },
+    { key: 'ul', value: '- ' },
+    { key: 'ol', value: '1. ' },
+];
 
-  // 元のマークダウン文字列から、変換前のマークダウンの種類を変換後のマークダウンの種類に置き換え
-  const convertedMarkdown = originalMarkdown.replace(
-    new RegExp(`^${fromPrefix} `, 'gm'),
-    `${toPrefix} `
-  );
+  let convertedMarkdown = originalMarkdown;
+  const markdownType = markdownTypes.find((type) => type.key === fromType);
+  if (markdownType) {
+    convertedMarkdown = convertedMarkdown.replace(markdownType.value, '');
+  }
+
+  const toMarkdownType = markdownTypes.find((type) => type.key === toType);
+  if (toMarkdownType) {
+    convertedMarkdown = toMarkdownType.value + convertedMarkdown;
+  }
 
   return convertedMarkdown;
 }

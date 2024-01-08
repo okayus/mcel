@@ -3,6 +3,7 @@ import { ref, onUpdated, defineEmits } from 'vue';
 import { marked } from 'marked';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { detectMarkdownType } from '../lib/MarkdownDetector';
+import { convertMarkdownType } from '../lib/MarkdownConverter';
 
 const rows = ref<number>(20);
 const cols = ref<number>(20);
@@ -43,6 +44,46 @@ function initializeArray(
   return array;
 }
 
+const changeOption = (e: any) => {
+  selectedOption.value = e.target.value;
+  if (!isNaN(startPointer.value[0])) {
+    for (
+      let i = Math.min(startPointer.value[0], foucusedPointer.value[0]);
+      i <= Math.max(startPointer.value[0], foucusedPointer.value[0]);
+      i++
+    ) {
+      for (
+        let j = Math.min(startPointer.value[1], foucusedPointer.value[1]);
+        j <= Math.max(startPointer.value[1], foucusedPointer.value[1]);
+        j++
+      ) {
+        inputValues.value[i][j] = convertMarkdownType(
+          inputValues.value[i][j],
+          markdownType.value[i][j],
+          selectedOption.value
+        );
+        markdownType.value[i][j] = selectedOption.value;
+        convertedValues.value[i][j] = marked(inputValues.value[i][j]);
+      }
+    }
+  }
+
+  inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
+    convertMarkdownType(
+      inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]],
+      markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]],
+      selectedOption.value
+    );
+
+  markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
+    selectedOption.value;
+
+  convertedValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
+    marked(
+      inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]]
+    );
+};
+
 const emit = defineEmits(['receiveCellValues']);
 const passCellValues = (rowIndex: number, colIndex: number) => {
   const cellValues = {
@@ -68,7 +109,7 @@ const foucusCell = (
       if (isClickEvent) {
         multipleSelectedCells.value[i][j] = false;
         startPointer.value = [NaN, NaN];
-        foucusedPointer.value = [NaN, NaN];
+        foucusedPointer.value = [rowIndex, colIndex];
       }
     }
   }
@@ -105,11 +146,11 @@ const hadleCellMovement = (
     moveLeft(rowIndex, colIndex, event);
   }
   markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
-      detectMarkdownType(
-        inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]]
-      );
-    selectedOption.value =
-      markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]];
+    detectMarkdownType(
+      inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]]
+    );
+  selectedOption.value =
+    markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]];
 };
 
 const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
@@ -476,7 +517,7 @@ const onContextMenu = (e: MouseEvent) => {
 
 <template>
   <div>
-    <select v-model="selectedOption">
+    <select v-model="selectedOption" @change="changeOption($event)">
       <option value="text">テキスト</option>
       <optgroup label="見出し">
         <option value="h1">見出し1</option>
