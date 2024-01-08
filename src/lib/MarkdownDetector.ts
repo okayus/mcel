@@ -12,16 +12,6 @@ export function detectMarkdownType(input: string): string | null {
         { key: 'blockquote', value: '> ' },
         { key: 'ul', value: '- ' },
         { key: 'ol', value: '1. ' },
-        { key: 'hr', value: '---' },
-        { key: 'table', value: '|  |  |\n| --- | --- |\n|  |  |' },
-        { key: 'code', value: '```\n\n```' },
-        { key: 'link', value: '[title](https://example.com)' },
-        { key: 'image', value: '![alt](https://example.com/image.png)' },
-        { key: 'bold', value: '**' },
-        { key: 'italic', value: '*' },
-        { key: 'strikethrough', value: '~~' },
-        { key: 'inlineCode', value: '`' },
-        { key: 'newline', value: '\n' },
     ];
 
     for (const convertedValue of convertedValues) {
