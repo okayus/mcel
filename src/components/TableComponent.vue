@@ -57,13 +57,13 @@ const changeOption = (e: any) => {
         j <= Math.max(startPointer.value[1], foucusedPointer.value[1]);
         j++
       ) {
-        inputValues.value[i][j] = !inputValues.value[i][j] 
-        ? inputValues.value[i][j]
-        : convertMarkdownType(
-          inputValues.value[i][j],
-          markdownType.value[i][j],
-          selectedOption.value
-        );
+        inputValues.value[i][j] = !inputValues.value[i][j]
+          ? inputValues.value[i][j]
+          : convertMarkdownType(
+              inputValues.value[i][j],
+              markdownType.value[i][j],
+              selectedOption.value
+            );
         markdownType.value[i][j] = selectedOption.value;
         convertedValues.value[i][j] = marked(inputValues.value[i][j]);
       }
@@ -108,15 +108,22 @@ const foucusCell = (
 };
 
 const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
-  const focusedCellElement = document.querySelector('.editable');
   const key: string = event.key;
 
   if (key === 'Enter') {
+    startPointer.value = [NaN, NaN];
+    for (let i = 0; i < rows.value; i++) {
+      for (let j = 0; j < cols.value; j++) {
+        multipleSelectedCells.value[i][j] = false;
+      }
+    }
     handleEnterPress(rowIndex, colIndex);
+    foucusCell(rowIndex + 1, colIndex, false);
     return;
   } else if (key === 'Delete') {
     return;
   } else {
+    inputValues.value[rowIndex][colIndex] = '';
     handleCellDoubleClick(rowIndex, colIndex);
   }
 };
@@ -433,7 +440,6 @@ const handleEnterPress = (rowIndex: number, colIndex: number) => {
   convertedValues.value[rowIndex][colIndex] = marked(
     inputValues.value[rowIndex][colIndex]
   );
-  foucusCell(rowIndex, colIndex, false);
   cellInputStatus.value[rowIndex][colIndex] = false;
   markdownType.value[rowIndex][colIndex] = detectMarkdownType(
     inputValues.value[rowIndex][colIndex]
