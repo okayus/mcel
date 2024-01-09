@@ -368,8 +368,29 @@ const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
 };
 
 const cellDelete = (rowIndex: number, colIndex: number) => {
-  inputValues.value[rowIndex][colIndex] = '';
-  convertedValues.value[rowIndex][colIndex] = '';
+  if (isNaN(startPointer.value[0])) {
+    inputValues.value[rowIndex][colIndex] = '';
+    convertedValues.value[rowIndex][colIndex] = '';
+    return;
+  }else{
+    for (
+      let i = Math.min(startPointer.value[0], foucusedPointer.value[0]);
+      i <= Math.max(startPointer.value[0], foucusedPointer.value[0]);
+      i++
+    ) {
+      for (
+        let j = Math.min(startPointer.value[1], foucusedPointer.value[1]);
+        j <= Math.max(startPointer.value[1], foucusedPointer.value[1]);
+        j++
+      ) {
+        inputValues.value[i][j] = '';
+        convertedValues.value[i][j] = '';
+        multipleSelectedCells.value[i][j] = false;
+      }
+    }
+    startPointer.value = [NaN, NaN];
+    foucusedPointer.value = [rowIndex, colIndex];
+  }
 };
 
 const cellCopy = (rowIndex: number, colIndex: number) => {
