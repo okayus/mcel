@@ -386,7 +386,7 @@ const cellCopy = (rowIndex: number, colIndex: number) => {
             : inputValues.value[i][j] + '\t';
       }
     }
-    copyText = copyText.slice(0, -2);
+    copyText = copyText.slice(0, -1);
   }
   navigator.clipboard.writeText(copyText);
 };
