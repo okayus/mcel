@@ -372,7 +372,7 @@ const cellDelete = (rowIndex: number, colIndex: number) => {
     inputValues.value[rowIndex][colIndex] = '';
     convertedValues.value[rowIndex][colIndex] = '';
     return;
-  }else{
+  } else {
     for (
       let i = Math.min(startPointer.value[0], foucusedPointer.value[0]);
       i <= Math.max(startPointer.value[0], foucusedPointer.value[0]);
@@ -516,18 +516,137 @@ const onContextMenu = (e: MouseEvent) => {
     y: e.y,
     items: [
       {
-        label: 'A menu item',
+        label: 'Copy',
         onClick: () => {
-          const type = detectMarkdownType('# hoge');
-          alert(type);
+          cellCopy(foucusedPointer.value[0], foucusedPointer.value[1]);
           if (focusedCellElement) {
             (focusedCellElement as HTMLElement).focus();
           }
         },
       },
       {
-        label: 'A submenu',
-        children: [{ label: 'Item1' }, { label: 'Item2' }, { label: 'Item3' }],
+        label: 'Paste',
+        onClick: () => {
+          cellPaste(foucusedPointer.value[0], foucusedPointer.value[1]);
+          if (focusedCellElement) {
+            (focusedCellElement as HTMLElement).focus();
+          }
+        },
+      },
+      {
+        label: 'Convert to',
+        children: [
+          {
+            label: 'Text',
+            onClick: () => {
+              selectedOption.value = 'text';
+              changeOption({ target: { value: 'text' } });
+              if (focusedCellElement) {
+                (focusedCellElement as HTMLElement).focus();
+              }
+            },
+          },
+          {
+            label: 'Heading',
+            children: [
+              {
+                label: 'H1',
+                onClick: () => {
+                  selectedOption.value = 'h1';
+                  changeOption({ target: { value: 'h1' } });
+                  if (focusedCellElement) {
+                    (focusedCellElement as HTMLElement).focus();
+                  }
+                },
+              },
+              {
+                label: 'H2',
+                onClick: () => {
+                  selectedOption.value = 'h2';
+                  changeOption({ target: { value: 'h2' } });
+                  if (focusedCellElement) {
+                    (focusedCellElement as HTMLElement).focus();
+                  }
+                },
+              },
+              {
+                label: 'H3',
+                onClick: () => {
+                  selectedOption.value = 'h3';
+                  changeOption({ target: { value: 'h3' } });
+                  if (focusedCellElement) {
+                    (focusedCellElement as HTMLElement).focus();
+                  }
+                },
+              },
+              {
+                label: 'H4',
+                onClick: () => {
+                  selectedOption.value = 'h4';
+                  changeOption({ target: { value: 'h4' } });
+                  if (focusedCellElement) {
+                    (focusedCellElement as HTMLElement).focus();
+                  }
+                },
+              },
+              {
+                label: 'H5',
+                onClick: () => {
+                  selectedOption.value = 'h5';
+                  changeOption({ target: { value: 'h5' } });
+                  if (focusedCellElement) {
+                    (focusedCellElement as HTMLElement).focus();
+                  }
+                },
+              },
+              {
+                label: 'H6',
+                onClick: () => {
+                  selectedOption.value = 'h6';
+                  changeOption({ target: { value: 'h6' } });
+                  if (focusedCellElement) {
+                    (focusedCellElement as HTMLElement).focus();
+                  }
+                },
+              },
+            ],
+          },
+          {
+            label: 'List',
+            children: [
+              {
+                label: 'Unordered List',
+                onClick: () => {
+                  selectedOption.value = 'ul';
+                  changeOption({ target: { value: 'ul' } });
+                  if (focusedCellElement) {
+                    (focusedCellElement as HTMLElement).focus();
+                  }
+                },
+              },
+              {
+                label: 'Ordered List',
+                onClick: () => {
+                  selectedOption.value = 'ol';
+                  changeOption({ target: { value: 'ol' } });
+                  if (focusedCellElement) {
+                    (focusedCellElement as HTMLElement).focus();
+                  }
+                },
+              },
+            ],
+          },
+          {
+            label: 'Blockquote',
+            onClick: () => {
+              selectedOption.value = 'blockquote';
+              changeOption({ target: { value: 'blockquote' } });
+              if (focusedCellElement) {
+                (focusedCellElement as HTMLElement).focus();
+              }
+            },
+          },
+        ],
       },
     ],
   });
@@ -536,21 +655,22 @@ const onContextMenu = (e: MouseEvent) => {
 
 <template>
   <div>
+    <p>Convert to</p>
     <select v-model="selectedOption" @change="changeOption($event)">
-      <option value="text">テキスト</option>
-      <optgroup label="見出し">
-        <option value="h1">見出し1</option>
-        <option value="h2">見出し2</option>
-        <option value="h3">見出し3</option>
-        <option value="h4">見出し4</option>
-        <option value="h5">見出し5</option>
-        <option value="h6">見出し6</option>
+      <option value="text">Text</option>
+      <optgroup label="Heading">
+        <option value="h1">H1</option>
+        <option value="h2">H2</option>
+        <option value="h3">H3</option>
+        <option value="h4">H4</option>
+        <option value="h5">H5</option>
+        <option value="h6">H6</option>
       </optgroup>
-      <optgroup label="リスト">
-        <option value="ul">箇条書きリスト</option>
-        <option value="ol">番号付きリスト</option>
+      <optgroup label="List">
+        <option value="ul">Unordered List</option>
+        <option value="ol">Ordered List</option>
       </optgroup>
-      <option value="blockquote">引用</option>
+      <option value="blockquote">Blockquote</option>
     </select>
   </div>
 
