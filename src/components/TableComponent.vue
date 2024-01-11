@@ -11,6 +11,7 @@ const inputValues = ref<string[][]>(
   initializeArray(rows.value, cols.value, '')
 );
 const stackUndoList = <string[][][]>[];
+const stackRedoList = <string[][][]>[];
 const selectedOption = ref<string>('text');
 const markdownType = ref<string[][]>(
   initializeArray(rows.value, cols.value, 'text')
@@ -126,6 +127,8 @@ const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
   } else if (key === 'Delete') {
     return;
   } else if (key === 'z' && event.ctrlKey) {
+    return;
+  } else if (key === 'y' && event.ctrlKey) {
     return;
   } else {
     const cloneInputValues = structuredClone(toRaw(inputValues.value));
@@ -447,8 +450,23 @@ const cellPaste = (rowIndex: number, colIndex: number) => {
 };
 
 const cellUndo = () => {
+  const cloneInputValues = structuredClone(toRaw(inputValues.value));
+  stackRedoList.push(cloneInputValues);
   if (stackUndoList.length > 0) {
     inputValues.value = stackUndoList.pop() as string[][];
+    for (let i = 0; i < rows.value; i++) {
+      for (let j = 0; j < cols.value; j++) {
+        convertedValues.value[i][j] = marked(inputValues.value[i][j]);
+      }
+    }
+  }
+};
+
+const cellRedo = () => {
+  const cloneInputValues = structuredClone(toRaw(inputValues.value));
+  stackUndoList.push(cloneInputValues);
+  if (stackRedoList.length > 0) {
+    inputValues.value = stackRedoList.pop() as string[][];
     for (let i = 0; i < rows.value; i++) {
       for (let j = 0; j < cols.value; j++) {
         convertedValues.value[i][j] = marked(inputValues.value[i][j]);
@@ -733,6 +751,7 @@ const onContextMenu = (e: MouseEvent) => {
             @keydown.ctrl.c="cellCopy(rowIndex, colIndex)"
             @keydown.ctrl.v="cellPaste(rowIndex, colIndex)"
             @keydown.ctrl.z="cellUndo()"
+            @keydown.ctrl.y="cellRedo()"
             @keypress="handleCellKeyPress(rowIndex, colIndex, $event)"
             tabindex="0"
             v-html="convertedValues[rowIndex][colIndex]"
