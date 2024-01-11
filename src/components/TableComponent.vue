@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { ref, onUpdated } from 'vue';
+import { ref, onUpdated, toRaw } from 'vue';
 import { marked } from 'marked';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { detectMarkdownType } from '../lib/MarkdownDetector';
 import { convertMarkdownType } from '../lib/MarkdownConverter';
 
-const rows = ref<number>(20);
+const rows = ref<number>(30);
 const cols = ref<number>(20);
 const inputValues = ref<string[][]>(
   initializeArray(rows.value, cols.value, '')
 );
+const stackList = <string[][][]>[];
 const selectedOption = ref<string>('text');
 const markdownType = ref<string[][]>(
   initializeArray(rows.value, cols.value, 'text')
@@ -45,6 +46,8 @@ function initializeArray(
 }
 
 const changeOption = (e: any) => {
+  const cloneInputValues = structuredClone(toRaw(inputValues.value));
+  stackList.push(cloneInputValues);
   selectedOption.value = e.target.value;
   if (!isNaN(startPointer.value[0])) {
     for (
@@ -122,7 +125,12 @@ const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
     return;
   } else if (key === 'Delete') {
     return;
+  } else if (key === 'z' && event.ctrlKey) {
+    cellUndo();
+    return;
   } else {
+    const cloneInputValues = structuredClone(toRaw(inputValues.value));
+    stackList.push(cloneInputValues);
     inputValues.value[rowIndex][colIndex] = '';
     handleCellDoubleClick(rowIndex, colIndex);
   }
@@ -368,6 +376,8 @@ const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
 };
 
 const cellDelete = (rowIndex: number, colIndex: number) => {
+  const cloneInputValues = structuredClone(toRaw(inputValues.value));
+  stackList.push(cloneInputValues);
   if (isNaN(startPointer.value[0])) {
     inputValues.value[rowIndex][colIndex] = '';
     convertedValues.value[rowIndex][colIndex] = '';
@@ -420,6 +430,8 @@ const cellCopy = (rowIndex: number, colIndex: number) => {
 };
 
 const cellPaste = (rowIndex: number, colIndex: number) => {
+  const cloneInputValues = structuredClone(toRaw(inputValues.value));
+  stackList.push(cloneInputValues);
   navigator.clipboard.readText().then((clipText) => {
     const clipTextArray = clipText.split('\n');
     for (let i = 0; i < clipTextArray.length; i++) {
@@ -433,6 +445,17 @@ const cellPaste = (rowIndex: number, colIndex: number) => {
       }
     }
   });
+};
+
+const cellUndo = () => {
+  if (stackList.length > 0) {
+    inputValues.value = stackList.pop() as string[][];
+    for (let i = 0; i < rows.value; i++) {
+      for (let j = 0; j < cols.value; j++) {
+        convertedValues.value[i][j] = marked(inputValues.value[i][j]);
+      }
+    }
+  }
 };
 
 const handleCellDoubleClick = (rowIndex: number, colIndex: number) => {
@@ -710,6 +733,7 @@ const onContextMenu = (e: MouseEvent) => {
             @keydown.delete="cellDelete(rowIndex, colIndex)"
             @keydown.ctrl.c="cellCopy(rowIndex, colIndex)"
             @keydown.ctrl.v="cellPaste(rowIndex, colIndex)"
+            @keydown.ctrl.z="cellUndo()"
             @keypress="handleCellKeyPress(rowIndex, colIndex, $event)"
             tabindex="0"
             v-html="convertedValues[rowIndex][colIndex]"
