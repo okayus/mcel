@@ -14,9 +14,10 @@ const downloadFile = () => {
 </script>
 
 <template>
+  <div class="header">
     <el-input type="text" v-model="fileName" />
     <el-button @click="downloadFile">Save as {{ fileName }}</el-button>
+  </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
