@@ -580,7 +580,7 @@ const onContextMenu = (e: MouseEvent) => {
             label: 'Text',
             onClick: () => {
               selectedOption.value = 'text';
-              changeOption('text' );
+              changeOption('text');
               if (focusedCellElement) {
                 (focusedCellElement as HTMLElement).focus();
               }
@@ -593,7 +593,7 @@ const onContextMenu = (e: MouseEvent) => {
                 label: 'H1',
                 onClick: () => {
                   selectedOption.value = 'h1';
-                  changeOption('h1' );
+                  changeOption('h1');
                   if (focusedCellElement) {
                     (focusedCellElement as HTMLElement).focus();
                   }
@@ -603,7 +603,7 @@ const onContextMenu = (e: MouseEvent) => {
                 label: 'H2',
                 onClick: () => {
                   selectedOption.value = 'h2';
-                  changeOption( 'h2' );
+                  changeOption('h2');
                   if (focusedCellElement) {
                     (focusedCellElement as HTMLElement).focus();
                   }
@@ -613,7 +613,7 @@ const onContextMenu = (e: MouseEvent) => {
                 label: 'H3',
                 onClick: () => {
                   selectedOption.value = 'h3';
-                  changeOption( 'h3' );
+                  changeOption('h3');
                   if (focusedCellElement) {
                     (focusedCellElement as HTMLElement).focus();
                   }
@@ -623,7 +623,7 @@ const onContextMenu = (e: MouseEvent) => {
                 label: 'H4',
                 onClick: () => {
                   selectedOption.value = 'h4';
-                  changeOption( 'h4' );
+                  changeOption('h4');
                   if (focusedCellElement) {
                     (focusedCellElement as HTMLElement).focus();
                   }
@@ -633,7 +633,7 @@ const onContextMenu = (e: MouseEvent) => {
                 label: 'H5',
                 onClick: () => {
                   selectedOption.value = 'h5';
-                  changeOption( 'h5');
+                  changeOption('h5');
                   if (focusedCellElement) {
                     (focusedCellElement as HTMLElement).focus();
                   }
@@ -643,7 +643,7 @@ const onContextMenu = (e: MouseEvent) => {
                 label: 'H6',
                 onClick: () => {
                   selectedOption.value = 'h6';
-                  changeOption( 'h6' );
+                  changeOption('h6');
                   if (focusedCellElement) {
                     (focusedCellElement as HTMLElement).focus();
                   }
@@ -658,7 +658,7 @@ const onContextMenu = (e: MouseEvent) => {
                 label: 'Unordered List',
                 onClick: () => {
                   selectedOption.value = 'ul';
-                  changeOption( 'ul' );
+                  changeOption('ul');
                   if (focusedCellElement) {
                     (focusedCellElement as HTMLElement).focus();
                   }
@@ -668,7 +668,7 @@ const onContextMenu = (e: MouseEvent) => {
                 label: 'Ordered List',
                 onClick: () => {
                   selectedOption.value = 'ol';
-                  changeOption( 'ol' );
+                  changeOption('ol');
                   if (focusedCellElement) {
                     (focusedCellElement as HTMLElement).focus();
                   }
@@ -680,7 +680,7 @@ const onContextMenu = (e: MouseEvent) => {
             label: 'Blockquote',
             onClick: () => {
               selectedOption.value = 'blockquote';
-              changeOption( 'blockquote' );
+              changeOption('blockquote');
               if (focusedCellElement) {
                 (focusedCellElement as HTMLElement).focus();
               }
@@ -694,21 +694,17 @@ const onContextMenu = (e: MouseEvent) => {
 </script>
 
 <template>
-  <div  class="grid grid-cols-10 gap-4">
+  <div class="grid grid-cols-10 gap-4">
     <el-select v-model="selectedOption" @change="changeOption($event)">
       <el-option value="text">Text</el-option>
-      <el-optgroup label="Heading">
-        <el-option value="h1">H1</el-option>
-        <el-option value="h2">H2</el-option>
-        <el-option value="h3">H3</el-option>
-        <el-option value="h4">H4</el-option>
-        <el-option value="h5">H5</el-option>
-        <el-option value="h6">H6</el-option>
-      </el-optgroup>
-      <el-optgroup label="List">
-        <el-option value="ul">Unordered List</el-option>
-        <el-option value="ol">Ordered List</el-option>
-      </el-optgroup>
+      <el-option value="h1">H1</el-option>
+      <el-option value="h2">H2</el-option>
+      <el-option value="h3">H3</el-option>
+      <el-option value="h4">H4</el-option>
+      <el-option value="h5">H5</el-option>
+      <el-option value="h6">H6</el-option>
+      <el-option value="ul">Unordered List</el-option>
+      <el-option value="ol">Ordered List</el-option>
       <el-option value="blockquote">Blockquote</el-option>
     </el-select>
   </div>
