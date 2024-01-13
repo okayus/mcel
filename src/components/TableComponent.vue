@@ -49,7 +49,7 @@ function initializeArray(
 const changeOption = (e: any) => {
   const cloneInputValues = structuredClone(toRaw(inputValues.value));
   stackUndoList.push(cloneInputValues);
-  selectedOption.value = e.target.value;
+  selectedOption.value = e;
   if (!isNaN(startPointer.value[0])) {
     for (
       let i = Math.min(startPointer.value[0], foucusedPointer.value[0]);
@@ -580,7 +580,7 @@ const onContextMenu = (e: MouseEvent) => {
             label: 'Text',
             onClick: () => {
               selectedOption.value = 'text';
-              changeOption({ target: { value: 'text' } });
+              changeOption('text' );
               if (focusedCellElement) {
                 (focusedCellElement as HTMLElement).focus();
               }
@@ -593,7 +593,7 @@ const onContextMenu = (e: MouseEvent) => {
                 label: 'H1',
                 onClick: () => {
                   selectedOption.value = 'h1';
-                  changeOption({ target: { value: 'h1' } });
+                  changeOption('h1' );
                   if (focusedCellElement) {
                     (focusedCellElement as HTMLElement).focus();
                   }
@@ -603,7 +603,7 @@ const onContextMenu = (e: MouseEvent) => {
                 label: 'H2',
                 onClick: () => {
                   selectedOption.value = 'h2';
-                  changeOption({ target: { value: 'h2' } });
+                  changeOption( 'h2' );
                   if (focusedCellElement) {
                     (focusedCellElement as HTMLElement).focus();
                   }
@@ -613,7 +613,7 @@ const onContextMenu = (e: MouseEvent) => {
                 label: 'H3',
                 onClick: () => {
                   selectedOption.value = 'h3';
-                  changeOption({ target: { value: 'h3' } });
+                  changeOption( 'h3' );
                   if (focusedCellElement) {
                     (focusedCellElement as HTMLElement).focus();
                   }
@@ -623,7 +623,7 @@ const onContextMenu = (e: MouseEvent) => {
                 label: 'H4',
                 onClick: () => {
                   selectedOption.value = 'h4';
-                  changeOption({ target: { value: 'h4' } });
+                  changeOption( 'h4' );
                   if (focusedCellElement) {
                     (focusedCellElement as HTMLElement).focus();
                   }
@@ -633,7 +633,7 @@ const onContextMenu = (e: MouseEvent) => {
                 label: 'H5',
                 onClick: () => {
                   selectedOption.value = 'h5';
-                  changeOption({ target: { value: 'h5' } });
+                  changeOption( 'h5');
                   if (focusedCellElement) {
                     (focusedCellElement as HTMLElement).focus();
                   }
@@ -643,7 +643,7 @@ const onContextMenu = (e: MouseEvent) => {
                 label: 'H6',
                 onClick: () => {
                   selectedOption.value = 'h6';
-                  changeOption({ target: { value: 'h6' } });
+                  changeOption( 'h6' );
                   if (focusedCellElement) {
                     (focusedCellElement as HTMLElement).focus();
                   }
@@ -658,7 +658,7 @@ const onContextMenu = (e: MouseEvent) => {
                 label: 'Unordered List',
                 onClick: () => {
                   selectedOption.value = 'ul';
-                  changeOption({ target: { value: 'ul' } });
+                  changeOption( 'ul' );
                   if (focusedCellElement) {
                     (focusedCellElement as HTMLElement).focus();
                   }
@@ -668,7 +668,7 @@ const onContextMenu = (e: MouseEvent) => {
                 label: 'Ordered List',
                 onClick: () => {
                   selectedOption.value = 'ol';
-                  changeOption({ target: { value: 'ol' } });
+                  changeOption( 'ol' );
                   if (focusedCellElement) {
                     (focusedCellElement as HTMLElement).focus();
                   }
@@ -680,7 +680,7 @@ const onContextMenu = (e: MouseEvent) => {
             label: 'Blockquote',
             onClick: () => {
               selectedOption.value = 'blockquote';
-              changeOption({ target: { value: 'blockquote' } });
+              changeOption( 'blockquote' );
               if (focusedCellElement) {
                 (focusedCellElement as HTMLElement).focus();
               }
