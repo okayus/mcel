@@ -1,5 +1,5 @@
 <template>
-  <div class="rootbox">
+  <div class="w-full">
     <header-menu />
     <table-component />
   </div>
@@ -11,9 +11,4 @@ import HeaderMenu from './components/HeaderMenu.vue';
 </script>
 
 <style scoped>
-/* コンポーネント専用のスタイルはここに記述 */
-.rootbox {
-  display: flex;
-  flex-direction: column;
-}
 </style>

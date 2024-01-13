@@ -694,7 +694,7 @@ const onContextMenu = (e: MouseEvent) => {
 </script>
 
 <template>
-  <div class="box">
+  <div  class="grid grid-cols-10 gap-4">
     <el-select v-model="selectedOption" @change="changeOption($event)">
       <el-option value="text">Text</el-option>
       <el-optgroup label="Heading">
