@@ -1,10 +1,8 @@
 <template>
-    <div>
-      <header-menu />
-    </div>
-    <div>
-      <table-component />
-    </div>
+  <div class="rootbox">
+    <header-menu />
+    <table-component />
+  </div>z
 </template>
 
 <script lang="ts" setup>
@@ -14,4 +12,8 @@ import HeaderMenu from './components/HeaderMenu.vue';
 
 <style scoped>
 /* コンポーネント専用のスタイルはここに記述 */
+.rootbox {
+  display: flex;
+  flex-direction: column;
+}
 </style>
