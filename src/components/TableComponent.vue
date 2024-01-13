@@ -5,8 +5,8 @@ import ContextMenu from '@imengyu/vue3-context-menu';
 import { detectMarkdownType } from '../lib/MarkdownDetector';
 import { convertMarkdownType } from '../lib/MarkdownConverter';
 
-const rows = ref<number>(30);
-const cols = ref<number>(20);
+const rows = ref<number>(100);
+const cols = ref<number>(50);
 const inputValues = ref<string[][]>(
   initializeArray(rows.value, cols.value, '')
 );
@@ -694,24 +694,23 @@ const onContextMenu = (e: MouseEvent) => {
 </script>
 
 <template>
-  <div>
-    <p>Convert to</p>
-    <select v-model="selectedOption" @change="changeOption($event)">
-      <option value="text">Text</option>
-      <optgroup label="Heading">
-        <option value="h1">H1</option>
-        <option value="h2">H2</option>
-        <option value="h3">H3</option>
-        <option value="h4">H4</option>
-        <option value="h5">H5</option>
-        <option value="h6">H6</option>
-      </optgroup>
-      <optgroup label="List">
-        <option value="ul">Unordered List</option>
-        <option value="ol">Ordered List</option>
-      </optgroup>
-      <option value="blockquote">Blockquote</option>
-    </select>
+  <div class="box">
+    <el-select v-model="selectedOption" @change="changeOption($event)">
+      <el-option value="text">Text</el-option>
+      <el-optgroup label="Heading">
+        <el-option value="h1">H1</el-option>
+        <el-option value="h2">H2</el-option>
+        <el-option value="h3">H3</el-option>
+        <el-option value="h4">H4</el-option>
+        <el-option value="h5">H5</el-option>
+        <el-option value="h6">H6</el-option>
+      </el-optgroup>
+      <el-optgroup label="List">
+        <el-option value="ul">Unordered List</el-option>
+        <el-option value="ol">Ordered List</el-option>
+      </el-optgroup>
+      <el-option value="blockquote">Blockquote</el-option>
+    </el-select>
   </div>
 
   <div
@@ -767,7 +766,7 @@ const onContextMenu = (e: MouseEvent) => {
   margin: 10px;
   overflow-y: scroll; /* Y軸方向にスクロール可能に */
   overflow-x: scroll; /* X軸方向にスクロール可能に */
-  max-height: calc(100vh - 100px); /* 表の高さを画面の高さに合わせる */
+  max-height: calc(100vh - 100px);
 }
 
 .spreadsheet {
