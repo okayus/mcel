@@ -2,7 +2,7 @@
   <div class="rootbox">
     <header-menu />
     <table-component />
-  </div>z
+  </div>
 </template>
 
 <script lang="ts" setup>
