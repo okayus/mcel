@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import HeaderMenu from './HeaderMenu.vue';
 import { ref, onUpdated, toRaw } from 'vue';
 import { marked } from 'marked';
 import ContextMenu from '@imengyu/vue3-context-menu';
@@ -155,9 +156,12 @@ const hadleCellMovement = (
     moveLeft(rowIndex, colIndex, event);
   }
   markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
-    detectMarkdownType(
-      inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]]
-    );
+    markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]] ===
+    'Table'
+      ? 'Table'
+      : detectMarkdownType(
+          inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]]
+        );
   selectedOption.value =
     markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]];
 };
@@ -502,9 +506,11 @@ const handleEnterPress = (rowIndex: number, colIndex: number) => {
     inputValues.value[rowIndex][colIndex]
   );
   cellInputStatus.value[rowIndex][colIndex] = false;
-  markdownType.value[rowIndex][colIndex] = detectMarkdownType(
-    inputValues.value[rowIndex][colIndex]
-  );
+  if (markdownType.value[rowIndex][colIndex] !== 'Table') {
+    markdownType.value[rowIndex][colIndex] = detectMarkdownType(
+      inputValues.value[rowIndex][colIndex]
+    );
+  }
   selectedOption.value = markdownType.value[rowIndex][colIndex];
 };
 
@@ -686,6 +692,16 @@ const onContextMenu = (e: MouseEvent) => {
               }
             },
           },
+          {
+            label: 'Table',
+            onClick: () => {
+              selectedOption.value = 'Table';
+              changeOption('Table');
+              if (focusedCellElement) {
+                (focusedCellElement as HTMLElement).focus();
+              }
+            },
+          },
         ],
       },
     ],
@@ -694,7 +710,8 @@ const onContextMenu = (e: MouseEvent) => {
 </script>
 
 <template>
-  <div class="grid grid-cols-10 gap-4">
+  <div class="grid grid-cols-4 gap-4">
+  <div class="w-1/2">
     <el-select v-model="selectedOption" @change="changeOption($event)">
       <el-option value="text">Text</el-option>
       <el-option value="h1">H1</el-option>
@@ -706,7 +723,22 @@ const onContextMenu = (e: MouseEvent) => {
       <el-option value="ul">Unordered List</el-option>
       <el-option value="ol">Ordered List</el-option>
       <el-option value="blockquote">Blockquote</el-option>
+      <el-option value="Table">Table</el-option>
     </el-select>
+  </div>
+  <div></div>
+  <div></div>
+  <div>
+    <header-menu
+    :tableValue="{
+      rows: rows,
+      cols: cols,
+      inputValues: inputValues,
+      markdownType: markdownType,
+      convertedValues: convertedValues,
+    }"
+    />
+  </div>
   </div>
 
   <div
@@ -721,7 +753,10 @@ const onContextMenu = (e: MouseEvent) => {
           v-for="(cell, colIndex) in cols"
           :key="colIndex"
           @click="foucusCell(rowIndex, colIndex, true)"
-          :class="{ multiSelected: multipleSelectedCells[rowIndex][colIndex] }"
+          :class="{
+            multiSelected: multipleSelectedCells[rowIndex][colIndex],
+            markTable: markdownType[rowIndex][colIndex] === 'Table',
+          }"
           :id="rowIndex + '-' + colIndex"
         >
           <input
@@ -772,7 +807,7 @@ const onContextMenu = (e: MouseEvent) => {
 }
 
 td {
-  border: 1px solid #ddd;
+  border: 1px solid #f1efef;
   text-align: center;
   /* position: relative; */
   height: 30px; /* セルの縦幅を広げる */
@@ -802,29 +837,8 @@ td div {
   background-color: #e6f3ff;
 }
 
-blockquote {
-  position: relative;
-  border-left: 3px double #997bad;
-  padding-left: 10px;
-  background: #e5e6f4;
-}
-blockquote:before {
-  position: absolute;
-  font-family: 'FontAwesome';
-  content: '\f10d';
-  font-size: 18px;
-  color: #997bad;
-  padding-top: 10px;
-}
-blockquote p {
-  position: relative;
-  padding: 30px 10px 0px;
-}
-blockquote cite {
-  display: block;
-  font-size: 0.8rem;
-  color: #997bad;
-  text-align: right;
-  padding: 10px;
+.markTable {
+  /* 枠線を太くする */
+  outline: 1px solid #030303;
 }
 </style>
