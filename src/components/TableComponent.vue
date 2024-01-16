@@ -735,7 +735,6 @@ const onContextMenu = (e: MouseEvent) => {
       cols: cols,
       inputValues: inputValues,
       markdownType: markdownType,
-      convertedValues: convertedValues,
     }"
     />
   </div>
