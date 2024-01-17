@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import HeaderMenu from './HeaderMenu.vue';
-import { ref, onUpdated, toRaw } from 'vue';
+import { ref, onUpdated, toRaw , onMounted} from 'vue';
 import { marked } from 'marked';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { detectMarkdownType } from '../lib/MarkdownDetector';
@@ -524,6 +524,10 @@ const handleCellBlur = (rowIndex: number, colIndex: number) => {
     }
   }
 };
+
+onMounted(() => {
+  foucusCell(0, 0, false);
+});
 
 onUpdated(() => {
   const selectedCellElement = document.querySelector('.selected');
