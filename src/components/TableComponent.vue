@@ -114,6 +114,7 @@ const foucusCell = (
 
 const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
   const key: string = event.key;
+  consol.log(event);
 
   if (key === 'Enter') {
     startPointer.value = [NaN, NaN];
