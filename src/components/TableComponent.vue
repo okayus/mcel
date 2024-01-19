@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import HeaderMenu from './HeaderMenu.vue';
+import DisplayCell from './DisplayCell.vue';
 import { ref, onUpdated, toRaw , onMounted} from 'vue';
 import { marked } from 'marked';
 import ContextMenu from '@imengyu/vue3-context-menu';
@@ -769,12 +770,18 @@ const checkKeyEvents = (e: KeyboardEvent) => {
           }"
           :id="rowIndex + '-' + colIndex"
         >
-          <input
+          <!-- <input
             v-if="cellInputStatus[rowIndex][colIndex]"
             class="editable"
             v-model="inputValues[rowIndex][colIndex]"
             @keydown.enter="handleEnterPress(rowIndex, colIndex)"
             @blur="handleCellBlur(rowIndex, colIndex)"
+          /> -->
+          <display-cell
+          v-if="!cellInputStatus[rowIndex][colIndex]"
+          :inputValue="{
+            inputValue: inputValues[rowIndex][colIndex],
+          }"
           />
           <div
             v-else
