@@ -455,12 +455,36 @@ const cellPaste = (rowIndex: number, colIndex: number) => {
     const clipTextArray = clipText.split('\n');
     for (let i = 0; i < clipTextArray.length; i++) {
       const clipTextArrayRow = clipTextArray[i].split('\t');
-      for (let j = 0; j < clipTextArrayRow.length; j++) {
-        inputValues.value[rowIndex + i][colIndex + j] = clipTextArrayRow[j];
-        convertedValues.value[rowIndex + i][colIndex + j] = marked(
-          clipTextArrayRow[j]
-        );
-        multipleSelectedCells.value[rowIndex + i][colIndex + j] = true;
+      const clipTextArrayTable = clipTextArray[i].split('|');
+      let clipTextArrayTableSplit:string[] = [];
+      if (clipTextArrayTable.length > 1) {
+        clipTextArrayTableSplit = clipTextArrayTable.filter((item) => {
+          return item !== '';
+        });
+      }
+      if (clipTextArrayTableSplit.length > 1) {
+        if (clipTextArrayTableSplit[0] === ' --- ') {
+          clipTextArray.splice(i, 1);
+          i--;
+        } else {
+          for (let j = 0; j < clipTextArrayTableSplit.length; j++) {
+            inputValues.value[rowIndex + i][colIndex + j] =
+              clipTextArrayTableSplit[j].trim();
+            convertedValues.value[rowIndex + i][colIndex + j] = marked(
+              clipTextArrayTableSplit[j].trim()
+            );
+            markdownType.value[rowIndex + i][colIndex + j] = 'Table';
+            multipleSelectedCells.value[rowIndex + i][colIndex + j] = true;
+          }
+        }
+      } else {
+        for (let j = 0; j < clipTextArrayRow.length; j++) {
+          inputValues.value[rowIndex + i][colIndex + j] = clipTextArrayRow[j];
+          convertedValues.value[rowIndex + i][colIndex + j] = marked(
+            clipTextArrayRow[j]
+          );
+          multipleSelectedCells.value[rowIndex + i][colIndex + j] = true;
+        }
       }
     }
   });
