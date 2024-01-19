@@ -382,6 +382,16 @@ const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   }
 };
 
+const handleTabKey = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
+  event.preventDefault();
+  if(event.shiftKey){
+    moveLeft(rowIndex, colIndex, event);
+  }else{
+    moveRight(rowIndex, colIndex, event);
+  }
+  
+}
+
 const cellDelete = (rowIndex: number, colIndex: number) => {
   const cloneInputValues = structuredClone(toRaw(inputValues.value));
   stackUndoList.push(cloneInputValues);
@@ -787,6 +797,7 @@ const checkKeyEvents = (e: KeyboardEvent) => {
             @keydown.down="hadleCellMovement(rowIndex, colIndex, $event)"
             @keydown.right="hadleCellMovement(rowIndex, colIndex, $event)"
             @keydown.left="hadleCellMovement(rowIndex, colIndex, $event)"
+            @keydown.tab="handleTabKey(rowIndex, colIndex, $event)"
             @keydown.delete="cellDelete(rowIndex, colIndex)"
             @keydown.ctrl.c="cellCopy(rowIndex, colIndex)"
             @keydown.ctrl.v="cellPaste(rowIndex, colIndex)"
