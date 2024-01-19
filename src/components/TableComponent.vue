@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import HeaderMenu from './HeaderMenu.vue';
-import { ref, onUpdated, toRaw , onMounted} from 'vue';
+import { ref, onUpdated, toRaw, onMounted } from 'vue';
 import { marked } from 'marked';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { detectMarkdownType } from '../lib/MarkdownDetector';
@@ -382,15 +382,18 @@ const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   }
 };
 
-const handleTabKey = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
+const handleTabKey = (
+  rowIndex: number,
+  colIndex: number,
+  event: KeyboardEvent
+) => {
   event.preventDefault();
-  if(event.shiftKey){
+  if (event.shiftKey) {
     moveLeft(rowIndex, colIndex, event);
-  }else{
+  } else {
     moveRight(rowIndex, colIndex, event);
   }
-  
-}
+};
 
 const cellDelete = (rowIndex: number, colIndex: number) => {
   const cloneInputValues = structuredClone(toRaw(inputValues.value));
@@ -726,33 +729,33 @@ const onContextMenu = (e: MouseEvent) => {
 
 <template>
   <div class="grid grid-cols-4 gap-4">
-  <div class="w-1/2">
-    <el-select v-model="selectedOption" @change="changeOption($event)">
-      <el-option value="text">Text</el-option>
-      <el-option value="h1">H1</el-option>
-      <el-option value="h2">H2</el-option>
-      <el-option value="h3">H3</el-option>
-      <el-option value="h4">H4</el-option>
-      <el-option value="h5">H5</el-option>
-      <el-option value="h6">H6</el-option>
-      <el-option value="ul">Unordered List</el-option>
-      <el-option value="ol">Ordered List</el-option>
-      <el-option value="blockquote">Blockquote</el-option>
-      <el-option value="Table">Table</el-option>
-    </el-select>
-  </div>
-  <div></div>
-  <div></div>
-  <div>
-    <header-menu
-    :tableValue="{
-      rows: rows,
-      cols: cols,
-      inputValues: inputValues,
-      markdownType: markdownType,
-    }"
-    />
-  </div>
+    <div class="w-1/2">
+      <el-select v-model="selectedOption" @change="changeOption($event)">
+        <el-option value="text">Text</el-option>
+        <el-option value="h1">H1</el-option>
+        <el-option value="h2">H2</el-option>
+        <el-option value="h3">H3</el-option>
+        <el-option value="h4">H4</el-option>
+        <el-option value="h5">H5</el-option>
+        <el-option value="h6">H6</el-option>
+        <el-option value="ul">Unordered List</el-option>
+        <el-option value="ol">Ordered List</el-option>
+        <el-option value="blockquote">Blockquote</el-option>
+        <el-option value="Table">Table</el-option>
+      </el-select>
+    </div>
+    <div></div>
+    <div></div>
+    <div>
+      <header-menu
+        :tableValue="{
+          rows: rows,
+          cols: cols,
+          inputValues: inputValues,
+          markdownType: markdownType,
+        }"
+      />
+    </div>
   </div>
   <div
     id="app"
