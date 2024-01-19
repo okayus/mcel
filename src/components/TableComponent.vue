@@ -128,9 +128,9 @@ const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
     return;
   } else if (key === 'Delete') {
     return;
-  } else if (key === 'z' && event.ctrlKey) {
+  } else if (key === 'z' && (event.ctrlKey || event.metaKey)) {
     return;
-  } else if (key === 'y' && event.ctrlKey) {
+  } else if (key === 'y' && (event.ctrlKey || event.metaKey)) {
     return;
   } else {
     const cloneInputValues = structuredClone(toRaw(inputValues.value));
@@ -169,7 +169,7 @@ const hadleCellMovement = (
 
 const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
-    if (event.ctrlKey) {
+    if (event.ctrlKey || event.metaKey) {
       for (let i = rowIndex; i > 0; i--) {
         foucusCell(i - 1, colIndex, false);
         foucusedPointer.value = [i - 1, colIndex];
@@ -221,7 +221,7 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
 const moveDown = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   event.preventDefault();
   if (rowIndex < rows.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
-    if (event.ctrlKey) {
+    if (event.ctrlKey || event.metaKey) {
       for (let i = rowIndex; i < rows.value - 1; i++) {
         foucusCell(i + 1, colIndex, false);
         foucusedPointer.value = [i + 1, colIndex];
@@ -279,7 +279,7 @@ const moveRight = (
 ) => {
   event.preventDefault();
   if (colIndex < cols.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
-    if (event.ctrlKey) {
+    if (event.ctrlKey || event.metaKey) {
       for (let i = colIndex; i < cols.value - 1; i++) {
         foucusCell(rowIndex, i + 1, false);
         foucusedPointer.value = [rowIndex, i + 1];
@@ -333,7 +333,7 @@ const moveRight = (
 const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   event.preventDefault();
   if (colIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
-    if (event.ctrlKey) {
+    if (event.ctrlKey || event.metaKey) {
       for (let i = colIndex; i > 0; i--) {
         foucusCell(rowIndex, i - 1, false);
         foucusedPointer.value = [rowIndex, i - 1];
@@ -792,6 +792,10 @@ const checkKeyEvents = (e: KeyboardEvent) => {
             @keydown.ctrl.v="cellPaste(rowIndex, colIndex)"
             @keydown.ctrl.z="cellUndo()"
             @keydown.ctrl.y="cellRedo()"
+            @keydown.meta.c="cellCopy(rowIndex, colIndex)"
+            @keydown.meta.v="cellPaste(rowIndex, colIndex)"
+            @keydown.meta.z="cellUndo()"
+            @keydown.meta.y="cellRedo()"
             @keypress="handleCellKeyPress(rowIndex, colIndex, $event)"
             tabindex="0"
             v-html="convertedValues[rowIndex][colIndex]"
