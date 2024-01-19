@@ -722,10 +722,6 @@ const onContextMenu = (e: MouseEvent) => {
     ],
   });
 };
-
-const checkKeyEvents = (e: KeyboardEvent) => {
-  console.log(e);
-};
 </script>
 
 <template>
@@ -758,9 +754,6 @@ const checkKeyEvents = (e: KeyboardEvent) => {
     />
   </div>
   </div>
-
-<input type="text" @keydown.prevent = "checkKeyEvents($event)" />
-
   <div
     id="app"
     class="box"
