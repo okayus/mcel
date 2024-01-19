@@ -22,7 +22,7 @@ export function makeMarkdownFile(tableValue: TableValue) {
           tableCols++;
         }
         markdownFile += '|\n';
-        if (tableValue.markdownType[row - 1][blankLength + 1] !== 'Table') {
+        if (row === 0 || tableValue.markdownType[row - 1][blankLength + 1] !== 'Table') {
           for (let i = blankLength; i < tableCols; i++) {
             markdownFile += '| --- ';
           }
