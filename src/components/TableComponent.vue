@@ -432,15 +432,29 @@ const cellCopy = (rowIndex: number, colIndex: number) => {
       i <= Math.max(startPointer.value[0], foucusedPointer.value[0]);
       i++
     ) {
+      let tableHeaderNotaion = '';
       for (
         let j = Math.min(startPointer.value[1], foucusedPointer.value[1]);
         j <= Math.max(startPointer.value[1], foucusedPointer.value[1]);
         j++
       ) {
-        copyText +=
-          j === Math.max(startPointer.value[1], foucusedPointer.value[1])
-            ? inputValues.value[i][j] + '\n'
-            : inputValues.value[i][j] + '\t';
+        if (markdownType.value[i][j] === 'Table') {
+          if (i === 0 || markdownType.value[i - 1][j] !== 'Table') {
+            tableHeaderNotaion +=
+              j === Math.max(startPointer.value[1], foucusedPointer.value[1])
+                ? '| --- |\n'
+                : '| --- ';
+          }
+          copyText +=
+            j === Math.max(startPointer.value[1], foucusedPointer.value[1])
+              ? '| ' + inputValues.value[i][j] + ' |\n' + tableHeaderNotaion
+              : '| ' + inputValues.value[i][j] + ' ';
+        } else {
+          copyText +=
+            j === Math.max(startPointer.value[1], foucusedPointer.value[1])
+              ? inputValues.value[i][j] + '\n'
+              : inputValues.value[i][j] + '\t';
+        }
       }
     }
     copyText = copyText.slice(0, -1);
@@ -456,7 +470,7 @@ const cellPaste = (rowIndex: number, colIndex: number) => {
     for (let i = 0; i < clipTextArray.length; i++) {
       const clipTextArrayRow = clipTextArray[i].split('\t');
       const clipTextArrayTable = clipTextArray[i].split('|');
-      let clipTextArrayTableSplit:string[] = [];
+      let clipTextArrayTableSplit: string[] = [];
       if (clipTextArrayTable.length > 1) {
         clipTextArrayTableSplit = clipTextArrayTable.filter((item) => {
           return item !== '';
