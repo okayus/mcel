@@ -6,7 +6,7 @@ import ContextMenu from '@imengyu/vue3-context-menu';
 import { detectMarkdownType } from '../lib/MarkdownDetector';
 import { convertMarkdownType } from '../lib/MarkdownConverter';
 
-const rows = ref<number>(100);
+const rows = ref<number>(200);
 const cols = ref<number>(50);
 const inputValues = ref<string[][]>(
   initializeArray(rows.value, cols.value, '')
