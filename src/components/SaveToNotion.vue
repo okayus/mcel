@@ -15,12 +15,10 @@
         <el-input v-model="form.databaseId" autocomplete="off" />
       </el-form-item>
     </el-form>
-      <span class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="saveToNotion()">
-          Confirm
-        </el-button>
-      </span>
+    <span class="dialog-footer">
+      <el-button @click="dialogFormVisible = false">Cancel</el-button>
+      <el-button type="primary" @click="saveToNotion()"> Confirm </el-button>
+    </span>
   </el-dialog>
 </template>
 
@@ -36,14 +34,12 @@ const form = reactive({
   databaseId: '',
 });
 
-const notion = new Client({ auth: form.apiKey });
-
-const saveToNotion = (async () => {
+const saveToNotion = async () => {
+  const notion = new Client({ auth: form.apiKey });
   const databaseId = form.databaseId;
   const response = await notion.databases.retrieve({ database_id: databaseId });
   console.log(response);
-});
-
+};
 </script>
 
 <style scoped>
