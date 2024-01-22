@@ -1,5 +1,4 @@
 <template>
-  <!-- Form -->
   <el-button text @click="dialogFormVisible = true">
     open a Form nested Dialog
   </el-button>
