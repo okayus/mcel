@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import HeaderMenu from './HeaderMenu.vue';
-import SaveToNotion from './SaveToNotion.vue';
 import { ref, onUpdated, toRaw, onMounted } from 'vue';
 import { marked } from 'marked';
 import ContextMenu from '@imengyu/vue3-context-menu';
@@ -783,9 +782,7 @@ const onContextMenu = (e: MouseEvent) => {
       </el-select>
     </div>
     <div></div>
-    <div>
-      <save-to-notion />
-    </div>
+    <div></div>
     <div>
       <header-menu
         :tableValue="{
