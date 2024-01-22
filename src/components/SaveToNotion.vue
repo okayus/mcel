@@ -15,18 +15,16 @@
         <el-input v-model="form.databaseId" autocomplete="off" />
       </el-form-item>
     </el-form>
-    <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogFormVisible = false">Cancel</el-button>
         <el-button type="primary" @click="saveToNotion()">
           Confirm
         </el-button>
       </span>
-    </template>
   </el-dialog>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { reactive, ref } from 'vue';
 import { Client } from '@notionhq/client';
 
