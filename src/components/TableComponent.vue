@@ -801,6 +801,14 @@ const onContextMenu = (e: MouseEvent) => {
     @keydown.shift.f10="shortcutMousuEvent($event)"
   >
     <table class="spreadsheet">
+      <thead>
+      <tr>
+        <th v-for="(col, colIndex) in cols" :key="colIndex">
+          {{ colIndex }}
+        </th>
+      </tr>
+      </thead>
+      <tbody>
       <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
         <td
           v-for="(cell, colIndex) in cols"
@@ -846,6 +854,7 @@ const onContextMenu = (e: MouseEvent) => {
           ></div>
         </td>
       </tr>
+      </tbody>
     </table>
   </div>
 </template>
@@ -862,6 +871,14 @@ const onContextMenu = (e: MouseEvent) => {
   border-collapse: collapse;
   width: 100%;
   table-layout: fixed;
+}
+
+table thead th {
+  border: 1px solid #f1efef;
+  text-align: center;
+  width: 50px;
+  resize: horizontal;
+  overflow: hidden;
 }
 
 td {
