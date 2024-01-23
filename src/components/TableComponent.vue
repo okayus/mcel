@@ -820,13 +820,14 @@ const onContextMenu = (e: MouseEvent) => {
           }"
           :id="rowIndex + '-' + colIndex"
         >
-          <input
+          <textarea
             v-if="cellInputStatus[rowIndex][colIndex]"
             class="editable"
             v-model="inputValues[rowIndex][colIndex]"
             @keydown.enter="handleEnterPress(rowIndex, colIndex)"
             @blur="handleCellBlur(rowIndex, colIndex)"
-          />
+          >
+          </textarea>
           <div
             v-else
             :class="{ selected: cellStatus[rowIndex][colIndex] }"
