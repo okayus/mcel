@@ -573,10 +573,6 @@ const handleEnterPress = (
         olCount + 1 + '. ' + inputText.slice(3);
     }
   }
-  convertedValues.value[rowIndex][colIndex] = marked(
-    inputValues.value[rowIndex][colIndex]
-  );
-  convertedValues.value[rowIndex][colIndex].replace(/\n/g, "<br>");
   cellInputStatus.value[rowIndex][colIndex] = false;
   if (markdownType.value[rowIndex][colIndex] !== 'Table') {
     markdownType.value[rowIndex][colIndex] = detectMarkdownType(
@@ -590,6 +586,7 @@ const handleCellBlur = (rowIndex: number, colIndex: number) => {
   convertedValues.value[rowIndex][colIndex] = marked(
     inputValues.value[rowIndex][colIndex]
   );
+  convertedValues.value[rowIndex][colIndex] = convertedValues.value[rowIndex][colIndex].replace(/\n/g, "<br>");
   for (let i = 0; i < rows.value; i++) {
     for (let j = 0; j < cols.value; j++) {
       cellInputStatus.value[i][j] = false;
