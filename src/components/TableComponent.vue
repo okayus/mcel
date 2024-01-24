@@ -122,7 +122,7 @@ const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
         multipleSelectedCells.value[i][j] = false;
       }
     }
-    handleEnterPress(rowIndex, colIndex);
+    handleEnterPress(rowIndex, colIndex, event);
     foucusCell(rowIndex + 1, colIndex, false);
     return;
   } else if (key === 'Delete') {
@@ -135,7 +135,7 @@ const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
     const cloneInputValues = structuredClone(toRaw(inputValues.value));
     stackUndoList.push(cloneInputValues);
     inputValues.value[rowIndex][colIndex] = '';
-    handleCellDoubleClick(rowIndex, colIndex);
+    handleCellDoubleClick(rowIndex, colIndex, event);
   }
 };
 
@@ -530,32 +530,53 @@ const cellRedo = () => {
   }
 };
 
-const handleCellDoubleClick = (rowIndex: number, colIndex: number) => {
+const handleCellDoubleClick = (
+  rowIndex: number,
+  colIndex: number,
+  event: KeyboardEvent | MouseEvent
+) => {
+  event.preventDefault();
   cellInputStatus.value[rowIndex][colIndex] = true;
 };
 
-const handleEnterPress = (rowIndex: number, colIndex: number) => {
-  /*inputValues.value[rowIndex][colIndex]の最初の三文字が数値+半角ドット+半角スペースの場合、
+const handleEnterPress = (
+  rowIndex: number,
+  colIndex: number,
+  event: KeyboardEvent
+) => {
+  if (event.altKey) {
+    //alt + enterで改行する
+    inputValues.value[rowIndex][colIndex] += '\n';
+    return;
+  } else {
+    event.preventDefault();
+    /*inputValues.value[rowIndex][colIndex]の最初の三文字が数値+半角ドット+半角スペースの場合、
   上のセルのolタグの個数を取得して、inputValues.value[rowIndex][colIndex]の最初の三文字をolタグの個数+1 + 半角ドット + 半角スペースに変換する
   */
-  const inputText = inputValues.value[rowIndex][colIndex];
-  const firstThreeChars = inputText.slice(0, 3);
-  const regex = /^[0-9]+\.\s$/;
-  if (regex.test(firstThreeChars)) {
-    let olCount = 0;
-    while (
-      convertedValues.value[rowIndex - 1 - olCount][colIndex].includes('<ol') &&
-      convertedValues.value[rowIndex - 1 - olCount][colIndex].includes('</ol>')
-    ) {
-      olCount++;
+    const inputText = inputValues.value[rowIndex][colIndex];
+    const firstThreeChars = inputText.slice(0, 3);
+    const regex = /^[0-9]+\.\s$/;
+    if (regex.test(firstThreeChars)) {
+      let olCount = 0;
+      while (
+        convertedValues.value[rowIndex - 1 - olCount][colIndex].includes(
+          '<ol'
+        ) &&
+        convertedValues.value[rowIndex - 1 - olCount][colIndex].includes(
+          '</ol>'
+        )
+      ) {
+        olCount++;
+      }
+      // inputValues.value[rowIndex][colIndex]の最初の三文字をolCount+1 + 半角ドット + 半角スペースに変換する
+      inputValues.value[rowIndex][colIndex] =
+        olCount + 1 + '. ' + inputText.slice(3);
     }
-    // inputValues.value[rowIndex][colIndex]の最初の三文字をolCount+1 + 半角ドット + 半角スペースに変換する
-    inputValues.value[rowIndex][colIndex] =
-      olCount + 1 + '. ' + inputText.slice(3);
   }
   convertedValues.value[rowIndex][colIndex] = marked(
     inputValues.value[rowIndex][colIndex]
   );
+  convertedValues.value[rowIndex][colIndex].replace(/\n/g, "<br>");
   cellInputStatus.value[rowIndex][colIndex] = false;
   if (markdownType.value[rowIndex][colIndex] !== 'Table') {
     markdownType.value[rowIndex][colIndex] = detectMarkdownType(
@@ -802,59 +823,59 @@ const onContextMenu = (e: MouseEvent) => {
   >
     <table class="spreadsheet">
       <thead>
-      <tr>
-        <th v-for="(col, colIndex) in cols" :key="colIndex">
-          {{ colIndex }}
-        </th>
-      </tr>
+        <tr>
+          <th v-for="(col, colIndex) in cols" :key="colIndex">
+            {{ colIndex }}
+          </th>
+        </tr>
       </thead>
       <tbody>
-      <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
-        <td
-          v-for="(cell, colIndex) in cols"
-          :key="colIndex"
-          @click="foucusCell(rowIndex, colIndex, true)"
-          :class="{
-            multiSelected: multipleSelectedCells[rowIndex][colIndex],
-            markTable: markdownType[rowIndex][colIndex] === 'Table',
-          }"
-          :id="rowIndex + '-' + colIndex"
-        >
-          <textarea
-            v-if="cellInputStatus[rowIndex][colIndex]"
-            class="editable"
-            v-model="inputValues[rowIndex][colIndex]"
-            @keydown.enter="handleEnterPress(rowIndex, colIndex)"
-            @blur="handleCellBlur(rowIndex, colIndex)"
-          >
-          </textarea>
-          <div
-            v-else
-            :class="{ selected: cellStatus[rowIndex][colIndex] }"
+        <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
+          <td
+            v-for="(cell, colIndex) in cols"
+            :key="colIndex"
+            @click="foucusCell(rowIndex, colIndex, true)"
+            :class="{
+              multiSelected: multipleSelectedCells[rowIndex][colIndex],
+              markTable: markdownType[rowIndex][colIndex] === 'Table',
+            }"
             :id="rowIndex + '-' + colIndex"
-            @dblclick="handleCellDoubleClick(rowIndex, colIndex)"
-            @keydown.enter="handleCellDoubleClick(rowIndex, colIndex)"
-            @keydown.f2="handleCellDoubleClick(rowIndex, colIndex)"
-            @keydown.up="hadleCellMovement(rowIndex, colIndex, $event)"
-            @keydown.down="hadleCellMovement(rowIndex, colIndex, $event)"
-            @keydown.right="hadleCellMovement(rowIndex, colIndex, $event)"
-            @keydown.left="hadleCellMovement(rowIndex, colIndex, $event)"
-            @keydown.tab="handleTabKey(rowIndex, colIndex, $event)"
-            @keydown.delete="cellDelete(rowIndex, colIndex)"
-            @keydown.ctrl.c="cellCopy(rowIndex, colIndex)"
-            @keydown.ctrl.v="cellPaste(rowIndex, colIndex)"
-            @keydown.ctrl.z="cellUndo()"
-            @keydown.ctrl.y="cellRedo()"
-            @keydown.meta.c="cellCopy(rowIndex, colIndex)"
-            @keydown.meta.v="cellPaste(rowIndex, colIndex)"
-            @keydown.meta.z="cellUndo()"
-            @keydown.meta.y="cellRedo()"
-            @keypress="handleCellKeyPress(rowIndex, colIndex, $event)"
-            tabindex="0"
-            v-html="convertedValues[rowIndex][colIndex]"
-          ></div>
-        </td>
-      </tr>
+          >
+            <textarea
+              v-if="cellInputStatus[rowIndex][colIndex]"
+              class="editable"
+              v-model="inputValues[rowIndex][colIndex]"
+              @keydown.enter="handleEnterPress(rowIndex, colIndex, $event)"
+              @blur="handleCellBlur(rowIndex, colIndex)"
+            >
+            </textarea>
+            <div
+              v-else
+              :class="{ selected: cellStatus[rowIndex][colIndex] }"
+              :id="rowIndex + '-' + colIndex"
+              @dblclick="handleCellDoubleClick(rowIndex, colIndex, $event)"
+              @keydown.enter="handleCellDoubleClick(rowIndex, colIndex, $event)"
+              @keydown.f2="handleCellDoubleClick(rowIndex, colIndex, $event)"
+              @keydown.up="hadleCellMovement(rowIndex, colIndex, $event)"
+              @keydown.down="hadleCellMovement(rowIndex, colIndex, $event)"
+              @keydown.right="hadleCellMovement(rowIndex, colIndex, $event)"
+              @keydown.left="hadleCellMovement(rowIndex, colIndex, $event)"
+              @keydown.tab="handleTabKey(rowIndex, colIndex, $event)"
+              @keydown.delete="cellDelete(rowIndex, colIndex)"
+              @keydown.ctrl.c="cellCopy(rowIndex, colIndex)"
+              @keydown.ctrl.v="cellPaste(rowIndex, colIndex)"
+              @keydown.ctrl.z="cellUndo()"
+              @keydown.ctrl.y="cellRedo()"
+              @keydown.meta.c="cellCopy(rowIndex, colIndex)"
+              @keydown.meta.v="cellPaste(rowIndex, colIndex)"
+              @keydown.meta.z="cellUndo()"
+              @keydown.meta.y="cellRedo()"
+              @keypress="handleCellKeyPress(rowIndex, colIndex, $event)"
+              tabindex="0"
+              v-html="convertedValues[rowIndex][colIndex]"
+            ></div>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
