@@ -814,7 +814,6 @@ const onContextMenu = (e: MouseEvent) => {
   </div>
   <div
     id="app"
-    class="box"
     @contextmenu="onContextMenu($event)"
     @keydown.shift.f10="shortcutMousuEvent($event)"
   >
@@ -903,9 +902,7 @@ table thead th {
 td {
   border: 1px solid #f1efef;
   text-align: center;
-  /* position: relative; */
   height: 30px; /* セルの縦幅を広げる */
-  width: 50px; /* セルの横幅を広げる */
 }
 
 .editable {
