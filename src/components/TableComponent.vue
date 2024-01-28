@@ -17,6 +17,7 @@ const selectedOption = ref<string>('text');
 const markdownType = ref<string[][]>(
   initializeArray(rows.value, cols.value, 'text')
 );
+const isTableTypeRow = ref<boolean[]>(initializeTableTypeRow(rows.value));
 const convertedValues = ref<any[][]>(
   initializeArray(rows.value, cols.value, '')
 );
@@ -47,6 +48,14 @@ function initializeArray(
   return array;
 }
 
+function initializeTableTypeRow(rows: number): boolean[] {
+  const array: boolean[] = [];
+  for (let i = 0; i < rows; i++) {
+    array.push(false);
+  }
+  return array;
+}
+
 const changeOption = (e: any) => {
   const cloneInputValues = structuredClone(toRaw(inputValues.value));
   stackUndoList.push(cloneInputValues);
@@ -72,6 +81,7 @@ const changeOption = (e: any) => {
         markdownType.value[i][j] = selectedOption.value;
         convertedValues.value[i][j] = marked(inputValues.value[i][j]);
       }
+      if (selectedOption.value === 'Table') isTableTypeRow.value[i] = true;
     }
   }
 
@@ -826,7 +836,13 @@ const onContextMenu = (e: MouseEvent) => {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
+        <tr
+          v-for="(row, rowIndex) in rows" :key="rowIndex"
+          :class="{
+            notTableTypeRow: !isTableTypeRow[rowIndex],
+            tableTypeRow: isTableTypeRow[rowIndex],
+            }"
+          >
           <td
             v-for="(cell, colIndex) in cols"
             :key="colIndex"
@@ -894,15 +910,26 @@ const onContextMenu = (e: MouseEvent) => {
 table thead th {
   border: 1px solid #f1efef;
   text-align: center;
-  width: 50px;
-  resize: horizontal;
-  overflow: hidden;
+}
+
+tr {
+  display: table;
+}
+
+.notTableTypeRow{
+  table-layout: fixed;
+  width: 100%;
+}
+
+.tableTypeRow{
+  width: 100%;
 }
 
 td {
   border: 1px solid #f1efef;
   text-align: center;
   height: 30px; /* セルの縦幅を広げる */
+  width: 50px;
 }
 
 .editable {
