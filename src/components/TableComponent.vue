@@ -178,16 +178,22 @@ const hadleCellMovement = (
 
 const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
+    cellStatus.value[rowIndex][colIndex] = false;
     if (event.ctrlKey || event.metaKey) {
-      for (let i = rowIndex; i > 0; i--) {
-        foucusCell(i - 1, colIndex, false);
-        foucusedPointer.value = [i - 1, colIndex];
-        if (inputValues.value[i - 1][colIndex] !== '') {
-          break;
+      let rowCounter = rowIndex - 1;
+      if (inputValues.value[rowIndex][colIndex]){
+        while(inputValues.value[rowCounter][colIndex] !== '' && rowCounter > 0){
+          rowCounter--;
+        }
+      } else {
+        while(inputValues.value[rowCounter][colIndex] === '' && rowCounter > 0){
+          rowCounter--;
         }
       }
+      cellStatus.value[rowCounter][colIndex] = true;
+      foucusedPointer.value = [rowCounter, colIndex];
     } else {
-      foucusCell(rowIndex - 1, colIndex, false);
+      cellStatus.value[rowIndex - 1][colIndex] = true;
       foucusedPointer.value = [rowIndex - 1, colIndex];
     }
     if (event.shiftKey) {
@@ -230,16 +236,22 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
 const moveDown = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   event.preventDefault();
   if (rowIndex < rows.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
+    cellStatus.value[rowIndex][colIndex] = false;
     if (event.ctrlKey || event.metaKey) {
-      for (let i = rowIndex; i < rows.value - 1; i++) {
-        foucusCell(i + 1, colIndex, false);
-        foucusedPointer.value = [i + 1, colIndex];
-        if (inputValues.value[i + 1][colIndex] !== '') {
-          break;
+      let rowCounter = rowIndex + 1;
+      if (inputValues.value[rowIndex][colIndex]){
+        while(inputValues.value[rowCounter][colIndex] !== '' && rowCounter < rows.value - 1){
+          rowCounter++;
+        }
+      } else {
+        while(inputValues.value[rowCounter][colIndex] === '' && rowCounter < rows.value - 1){
+          rowCounter++;
         }
       }
+      cellStatus.value[rowCounter][colIndex] = true;
+      foucusedPointer.value = [rowCounter, colIndex];
     } else {
-      foucusCell(rowIndex + 1, colIndex, false);
+      cellStatus.value[rowIndex + 1][colIndex] = true;
       foucusedPointer.value = [rowIndex + 1, colIndex];
     }
     if (event.shiftKey) {
@@ -288,16 +300,22 @@ const moveRight = (
 ) => {
   event.preventDefault();
   if (colIndex < cols.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
+    cellStatus.value[rowIndex][colIndex] = false;
     if (event.ctrlKey || event.metaKey) {
-      for (let i = colIndex; i < cols.value - 1; i++) {
-        foucusCell(rowIndex, i + 1, false);
-        foucusedPointer.value = [rowIndex, i + 1];
-        if (inputValues.value[rowIndex][i + 1] !== '') {
-          break;
+      let colCounter = colIndex + 1;
+      if (inputValues.value[rowIndex][colIndex]){
+        while(inputValues.value[rowIndex][colCounter] !== '' && colCounter < cols.value - 1){
+          colCounter++;
+        }
+      } else {
+        while(inputValues.value[rowIndex][colCounter] === '' && colCounter < cols.value - 1){
+          colCounter++;
         }
       }
+      cellStatus.value[rowIndex][colCounter] = true;
+      foucusedPointer.value = [rowIndex, colCounter];
     } else {
-      foucusCell(rowIndex, colIndex + 1, false);
+      cellStatus.value[rowIndex][colIndex + 1] = true;
       foucusedPointer.value = [rowIndex, colIndex + 1];
     }
     if (event.shiftKey) {
@@ -342,16 +360,22 @@ const moveRight = (
 const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   event.preventDefault();
   if (colIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
+    cellStatus.value[rowIndex][colIndex] = false;
     if (event.ctrlKey || event.metaKey) {
-      for (let i = colIndex; i > 0; i--) {
-        foucusCell(rowIndex, i - 1, false);
-        foucusedPointer.value = [rowIndex, i - 1];
-        if (inputValues.value[rowIndex][i - 1] !== '') {
-          break;
+      let colCounter = colIndex - 1;
+      if (inputValues.value[rowIndex][colIndex]){
+        while(inputValues.value[rowIndex][colCounter] !== '' && colCounter > 0){
+          colCounter--;
+        }
+      } else {
+        while(inputValues.value[rowIndex][colCounter] === '' && colCounter > 0){
+          colCounter--;
         }
       }
+      cellStatus.value[rowIndex][colCounter] = true;
+      foucusedPointer.value = [rowIndex, colCounter];
     } else {
-      foucusCell(rowIndex, colIndex - 1, false);
+      cellStatus.value[rowIndex][colIndex - 1] = true;
       foucusedPointer.value = [rowIndex, colIndex - 1];
     }
     if (event.shiftKey) {
