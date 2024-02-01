@@ -793,7 +793,7 @@ const onContextMenu = (e: MouseEvent) => {
 </script>
 
 <template>
-  <div class="grid grid-cols-4 gap-4">
+  <div class="grid grid-cols-4 gap-4 m-5">
     <div class="w-1/2">
       <el-select v-model="selectedOption" @change="changeOption($event)">
         <el-option value="text">Text</el-option>
@@ -823,7 +823,7 @@ const onContextMenu = (e: MouseEvent) => {
     </div>
   </div>
   <div
-    id="app"
+    id="app-table"
     @contextmenu="onContextMenu($event)"
     @keydown.shift.f10="shortcutMousuEvent($event)"
   >
@@ -894,8 +894,8 @@ const onContextMenu = (e: MouseEvent) => {
 </template>
 
 <style scoped>
-#app {
-  margin: 10px;
+#app-table {
+  margin-top: 10px;
   overflow-y: scroll; /* Y軸方向にスクロール可能に */
   overflow-x: scroll; /* X軸方向にスクロール可能に */
   max-height: calc(100vh - 100px);
@@ -910,9 +910,11 @@ const onContextMenu = (e: MouseEvent) => {
 table thead th {
   border: 1px solid #f1efef;
   text-align: center;
+  height: 30px; /* セルの縦幅を広げる */
+  width: 50px;
 }
 
-tr {
+table tbody tr {
   display: table;
 }
 
@@ -928,7 +930,7 @@ tr {
 td {
   border: 1px solid #f1efef;
   text-align: center;
-  height: 30px; /* セルの縦幅を広げる */
+  height: 30px;
   width: 50px;
 }
 
