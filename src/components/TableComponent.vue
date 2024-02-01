@@ -863,13 +863,7 @@ const onContextMenu = (e: MouseEvent) => {
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="(row, rowIndex) in rows" :key="rowIndex"
-          :class="{
-            notTableTypeRow: !isTableTypeRow[rowIndex],
-            tableTypeRow: isTableTypeRow[rowIndex],
-            }"
-          >
+        <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
           <td
             v-for="(cell, colIndex) in cols"
             :key="colIndex"
@@ -933,57 +927,39 @@ const onContextMenu = (e: MouseEvent) => {
   width: 100%;
   table-layout: fixed;
 }
-
 table thead th {
   border: 1px solid #f1efef;
   text-align: center;
-  height: 30px; /* セルの縦幅を広げる */
   width: 50px;
+  resize: horizontal;
+  overflow: hidden;
 }
-
-table tbody tr {
-  display: table;
-}
-
-.notTableTypeRow{
-  table-layout: fixed;
-  width: 100%;
-}
-
-.tableTypeRow{
-  width: 100%;
-}
-
 td {
   border: 1px solid #f1efef;
-  text-align: left;
-  height: 30px;
-  width: 50px;
+  text-align: center;
+  /* position: relative; */
+  height: 30px; /* セルの縦幅を広げる */
+  width: 50px; /* セルの横幅を広げる */
 }
-
 .editable {
   width: 1000%;
-  height: 85%;
+  height: 100%;
   margin-top: 0;
   margin-left: 0;
 }
-
 .selected {
   height: 100%;
   width: 100%;
   outline: 2px solid #4285f4;
 }
-
 td div {
   vertical-align: middle;
   white-space: nowrap; /* セル内のテキストを折り返さない（全角だけ改行されてた） */
 }
-
 .multiSelected {
   /* 背景を薄い青にする */
   background-color: #e6f3ff;
 }
-
 .markTable {
   /* 枠線を太くする */
   outline: 1px solid #030303;
