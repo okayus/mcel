@@ -621,6 +621,9 @@ const handleCellBlur = (rowIndex: number, colIndex: number) => {
     inputValues.value[rowIndex][colIndex]
   );
   convertedValues.value[rowIndex][colIndex] = convertedValues.value[rowIndex][colIndex].replace(/\n/g, "<br>");
+  if(convertedValues.value[rowIndex][colIndex].slice(-4) === "<br>"){
+    convertedValues.value[rowIndex][colIndex] = convertedValues.value[rowIndex][colIndex].slice(0, -4);
+  }
   for (let i = 0; i < rows.value; i++) {
     for (let j = 0; j < cols.value; j++) {
       cellInputStatus.value[i][j] = false;
@@ -953,14 +956,14 @@ table tbody tr {
 
 td {
   border: 1px solid #f1efef;
-  text-align: center;
+  text-align: left;
   height: 30px;
   width: 50px;
 }
 
 .editable {
   width: 1000%;
-  height: 100%;
+  height: 85%;
   margin-top: 0;
   margin-left: 0;
 }
