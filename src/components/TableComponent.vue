@@ -583,7 +583,6 @@ const handleEnterPress = (
     inputValues.value[rowIndex][colIndex] += '\n';
     return;
   } else {
-    event.preventDefault();
     /*inputValues.value[rowIndex][colIndex]の最初の三文字が数値+半角ドット+半角スペースの場合、
   上のセルのolタグの個数を取得して、inputValues.value[rowIndex][colIndex]の最初の三文字をolタグの個数+1 + 半角ドット + 半角スペースに変換する
   */
