@@ -4,22 +4,25 @@ import { ref, defineEmits, computed } from 'vue';
 const emit = defineEmits(['fileContent']);
 const fileContent = ref<string|ArrayBuffer|null>('');
 
-const readFile = async (event: any) => {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
+const hookReaFile = () => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.onchange = (e: any) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
         if (e.target) fileContent.value = e.target.result;
         if(fileContent.value) emit('fileContent', fileContent.value);
-    };
-    reader.readAsText(file);
-  }
+      };
+      reader.readAsText(file);
+    }
+  };
+  input.click();
 };
 
 </script>
 
 <template>
-    <div class="flex gap-1">
-        <input type="file" @change="readFile($event)">
-    </div>
+  <el-button type="primary" @click="hookReaFile()">Read file</el-button>
 </template>
