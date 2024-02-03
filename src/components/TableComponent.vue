@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import FileReader from './FileReader.vue';
 import HeaderMenu from './HeaderMenu.vue';
-import { ref, onUpdated, toRaw, onMounted } from 'vue';
+import { ref, onUpdated, toRaw, onMounted, watchEffect } from 'vue';
 import { marked } from 'marked';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { detectMarkdownType } from '../lib/MarkdownDetector';
@@ -9,7 +10,7 @@ import { convertMarkdownType } from '../lib/MarkdownConverter';
 const rows = ref<number>(200);
 const cols = ref<number>(50);
 const inputValues = ref<string[][]>(
-  initializeArray(rows.value, cols.value, '')
+  initializeInputValues(rows.value, cols.value, '', 'inputValues')
 );
 const stackUndoList = <string[][][]>[];
 const stackRedoList = <string[][][]>[];
@@ -19,7 +20,7 @@ const markdownType = ref<string[][]>(
 );
 const isTableTypeRow = ref<boolean[]>(initializeTableTypeRow(rows.value));
 const convertedValues = ref<any[][]>(
-  initializeArray(rows.value, cols.value, '')
+  initializeInputValues(rows.value, cols.value, '', 'convertedValues')
 );
 const cellStatus = ref<boolean[][]>(
   initializeArray(rows.value, cols.value, false)
@@ -32,6 +33,31 @@ const multipleSelectedCells = ref<boolean[][]>(
 );
 const startPointer = ref<number[]>([NaN, NaN]);
 const foucusedPointer = ref<number[]>([NaN, NaN]);
+
+function initializeInputValues(
+  rows: number,
+  cols: number,
+  initialValue: any,
+  key?: string
+): any[][] {
+  // ローカルストレージに保存されているデータがあれば、それを使う
+  const savedData = localStorage.getItem(key);
+  if (savedData) {
+    const parsedData = JSON.parse(savedData);
+    if (parsedData.length === rows && parsedData[0].length === cols) {
+      return parsedData;
+    }
+  }
+  const array: any[][] = [];
+  for (let i = 0; i < rows; i++) {
+    const row: any[] = [];
+    for (let j = 0; j < cols; j++) {
+      row.push(initialValue);
+    }
+    array.push(row);
+  }
+  return array;
+}
 
 function initializeArray(
   rows: number,
@@ -55,6 +81,12 @@ function initializeTableTypeRow(rows: number): boolean[] {
   }
   return array;
 }
+
+watchEffect(() => {
+  // inputValues.valueとconvertedValuesの変更を検知して、ローカルストレージに保存する
+  localStorage.setItem('inputValues', JSON.stringify(inputValues.value));
+  localStorage.setItem('convertedValues', JSON.stringify(convertedValues.value));
+});
 
 const changeOption = (e: any) => {
   const cloneInputValues = structuredClone(toRaw(inputValues.value));
@@ -538,6 +570,44 @@ const cellPaste = (rowIndex: number, colIndex: number) => {
   });
 };
 
+const parseMarkdown = (clipText: string, rowIndex: number, colIndex: number) => {
+  const clipTextArray = clipText.split('\n');
+    for (let i = 0; i < clipTextArray.length; i++) {
+      const clipTextArrayRow = clipTextArray[i].split('    ');
+      const clipTextArrayTable = clipTextArray[i].split('|');
+      let clipTextArrayTableSplit: string[] = [];
+      if (clipTextArrayTable.length > 1) {
+        clipTextArrayTableSplit = clipTextArrayTable.filter((item) => {
+          return item !== '';
+        });
+      }
+      if (clipTextArrayTableSplit.length > 1) {
+        if (clipTextArrayTableSplit[0] === ' --- ') {
+          clipTextArray.splice(i, 1);
+          i--;
+        } else {
+          for (let j = 0; j < clipTextArrayTableSplit.length; j++) {
+            inputValues.value[rowIndex + i][colIndex + j] =
+              clipTextArrayTableSplit[j].trim();
+            convertedValues.value[rowIndex + i][colIndex + j] = marked(
+              clipTextArrayTableSplit[j].trim()
+            );
+            markdownType.value[rowIndex + i][colIndex + j] = 'Table';
+            multipleSelectedCells.value[rowIndex + i][colIndex + j] = true;
+          }
+        }
+      } else {
+        for (let j = 0; j < clipTextArrayRow.length; j++) {
+          inputValues.value[rowIndex + i][colIndex + j] = clipTextArrayRow[j];
+          convertedValues.value[rowIndex + i][colIndex + j] = marked(
+            clipTextArrayRow[j]
+          );
+          multipleSelectedCells.value[rowIndex + i][colIndex + j] = true;
+        }
+      }
+    }
+};
+
 const cellUndo = () => {
   const cloneInputValues = structuredClone(toRaw(inputValues.value));
   stackRedoList.push(cloneInputValues);
@@ -836,7 +906,12 @@ const onContextMenu = (e: MouseEvent) => {
       </el-select>
     </div>
     <div></div>
-    <div></div>
+    <div>
+      <file-reader
+      @fileContent="parseMarkdown($event, 0, 0)"
+      >
+      </file-reader>
+    </div>
     <div>
       <header-menu
         :tableValue="{
