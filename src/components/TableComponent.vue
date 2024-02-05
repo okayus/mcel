@@ -552,6 +552,9 @@ const cellPaste = (rowIndex: number, colIndex: number) => {
           i--;
         } else {
           for (let j = 0; j < clipTextArrayTableSplit.length; j++) {
+            if(clipTextArrayTableSplit[j].slice(-2) === '\r'){
+              clipTextArrayTableSplit[j] = clipTextArrayTableSplit[j].slice(0, -2);
+            }
             inputValues.value[rowIndex + i][colIndex + j] =
               clipTextArrayTableSplit[j].trim();
             convertedValues.value[rowIndex + i][colIndex + j] = marked(
