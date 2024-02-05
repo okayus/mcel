@@ -1002,8 +1002,8 @@ const onContextMenu = (e: MouseEvent) => {
 <style scoped>
 #app-table {
   margin-top: 10px;
-  overflow-y: scroll; /* Y軸方向にスクロール可能に */
-  overflow-x: scroll; /* X軸方向にスクロール可能に */
+  overflow-y: scroll;
+  overflow-x: scroll;
   max-height: calc(100vh - 100px);
 }
 
