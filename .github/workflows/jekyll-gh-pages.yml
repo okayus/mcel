@@ -5,8 +5,7 @@ on:
   # Runs on pushes targeting the default branch
   push:
     paths:
-      - "dist/**"
-    branches: ["main"]
+      branches: ["main"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -32,13 +31,18 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v4
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
         with:
-          source: ./dist
-          destination: ./_site
+          node-version: 18
+      - name: Install dependencies
+        run: npm install
+      - name: Build with Jekyll
+        run: npm run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
 
   # Deployment job
   deploy:
