@@ -8,5 +8,3 @@
 import TableComponent from './components/TableComponent.vue';
 </script>
 
-<style scoped>
-</style>
