@@ -38,7 +38,7 @@ function initializeInputValues(
   rows: number,
   cols: number,
   initialValue: any,
-  key?: string
+  key: string
 ): any[][] {
   // ローカルストレージに保存されているデータがあれば、それを使う
   const savedData = localStorage.getItem(key);
@@ -83,7 +83,6 @@ function initializeTableTypeRow(rows: number): boolean[] {
 }
 
 watchEffect(() => {
-  // inputValues.valueとconvertedValuesの変更を検知して、ローカルストレージに保存する
   localStorage.setItem('inputValues', JSON.stringify(inputValues.value));
   localStorage.setItem('convertedValues', JSON.stringify(convertedValues.value));
 });
@@ -906,7 +905,7 @@ const onContextMenu = (e: MouseEvent) => {
       </el-select>
     </div>
     <div></div>
-    <div>
+    <div class="text-right">
       <file-reader
       @fileContent="parseMarkdown($event, 0, 0)"
       >
