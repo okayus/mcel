@@ -6,7 +6,7 @@ import { marked } from 'marked';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { detectMarkdownType } from '../lib/MarkdownDetector';
 import { convertMarkdownType } from '../lib/MarkdownConverter';
-import { en } from 'element-plus/es/locale/index.mjs';
+import { en, ro } from 'element-plus/es/locale/index.mjs';
 
 const rows = ref<number>(200);
 const cols = ref<number>(50);
@@ -221,6 +221,7 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
         while(inputValues.value[rowCounter][colIndex] !== '' && rowCounter > 0){
           rowCounter--;
         }
+        if (rowCounter !== rowIndex - 1) rowCounter++;
       } else {
         while(inputValues.value[rowCounter][colIndex] === '' && rowCounter > 0){
           rowCounter--;
@@ -250,7 +251,7 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
           j++
         ) {
           if (foucusedPointer.value[0] > startPointer.value[0]) {
-            multipleSelectedCells.value[rowIndex][j] = false;
+            multipleSelectedCells.value[i][j] = false;
             multipleSelectedCells.value[foucusedPointer.value[0]][j] = true;
           } else {
             multipleSelectedCells.value[i][j] =
@@ -279,6 +280,7 @@ const moveDown = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
         while(inputValues.value[rowCounter][colIndex] !== '' && rowCounter < rows.value - 1){
           rowCounter++;
         }
+        if (rowCounter !== rowIndex + 1) rowCounter--;
       } else {
         while(inputValues.value[rowCounter][colIndex] === '' && rowCounter < rows.value - 1){
           rowCounter++;
@@ -311,7 +313,7 @@ const moveDown = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
             multipleSelectedCells.value[i][j] =
               i >= startPointer.value[0] ? true : false;
           } else {
-            multipleSelectedCells.value[i][j] = false;
+            multipleSelectedCells.value[i][j] = i === Math.max(rowIndex, foucusedPointer.value[0]) ? true : false;
             if (foucusedPointer.value[0] === rowIndex + 1) {
               multipleSelectedCells.value[foucusedPointer.value[0]][j] = true;
             }
@@ -343,6 +345,7 @@ const moveRight = (
         while(inputValues.value[rowIndex][colCounter] !== '' && colCounter < cols.value - 1){
           colCounter++;
         }
+        if (colCounter !== colIndex + 1) colCounter--;
       } else {
         while(inputValues.value[rowIndex][colCounter] === '' && colCounter < cols.value - 1){
           colCounter++;
@@ -375,7 +378,7 @@ const moveRight = (
             multipleSelectedCells.value[i][j] =
               j >= startPointer.value[1] ? true : false;
           } else {
-            multipleSelectedCells.value[i][j] = false;
+            multipleSelectedCells.value[i][j] = j === Math.max(colIndex, foucusedPointer.value[1]) ? true : false;
             if (foucusedPointer.value[1] === colIndex + 1) {
               multipleSelectedCells.value[i][foucusedPointer.value[1]] = true;
             }
@@ -403,6 +406,7 @@ const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
         while(inputValues.value[rowIndex][colCounter] !== '' && colCounter > 0){
           colCounter--;
         }
+        if (colCounter !== colIndex - 1) colCounter++;
       } else {
         while(inputValues.value[rowIndex][colCounter] === '' && colCounter > 0){
           colCounter--;
@@ -432,7 +436,7 @@ const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
           j++
         ) {
           if (foucusedPointer.value[1] > startPointer.value[1]) {
-            multipleSelectedCells.value[i][colIndex] = false;
+            multipleSelectedCells.value[i][j] = false;
             multipleSelectedCells.value[i][foucusedPointer.value[1]] = true;
           } else {
             multipleSelectedCells.value[i][j] =
