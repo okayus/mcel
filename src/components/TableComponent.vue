@@ -6,6 +6,7 @@ import { marked } from 'marked';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { detectMarkdownType } from '../lib/MarkdownDetector';
 import { convertMarkdownType } from '../lib/MarkdownConverter';
+import { en } from 'element-plus/es/locale/index.mjs';
 
 const rows = ref<number>(200);
 const cols = ref<number>(50);
@@ -92,14 +93,18 @@ const changeOption = (e: any) => {
   stackUndoList.push(cloneInputValues);
   selectedOption.value = e;
   if (!isNaN(startPointer.value[0])) {
+    const startRow = Math.min(startPointer.value[0], foucusedPointer.value[0]);
+    const startCol = Math.min(startPointer.value[1], foucusedPointer.value[1]);
+    const endRow = Math.max(startPointer.value[0], foucusedPointer.value[0]);
+    const endCol = Math.max(startPointer.value[1], foucusedPointer.value[1]);
     for (
-      let i = Math.min(startPointer.value[0], foucusedPointer.value[0]);
-      i <= Math.max(startPointer.value[0], foucusedPointer.value[0]);
+      let i = startRow;
+      i <= endRow;
       i++
     ) {
       for (
-        let j = Math.min(startPointer.value[1], foucusedPointer.value[1]);
-        j <= Math.max(startPointer.value[1], foucusedPointer.value[1]);
+        let j = startCol;
+        j <= endCol;
         j++
       ) {
         inputValues.value[i][j] = !inputValues.value[i][j]
@@ -114,22 +119,22 @@ const changeOption = (e: any) => {
       }
       if (selectedOption.value === 'Table') isTableTypeRow.value[i] = true;
     }
+  } else {
+    inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
+      convertMarkdownType(
+        inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]],
+        markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]],
+        selectedOption.value
+      );
+
+    markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
+      selectedOption.value;
+
+    convertedValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
+      marked(
+        inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]]
+      );
   }
-
-  inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
-    convertMarkdownType(
-      inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]],
-      markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]],
-      selectedOption.value
-    );
-
-  markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
-    selectedOption.value;
-
-  convertedValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
-    marked(
-      inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]]
-    );
 };
 
 const foucusCell = (
@@ -652,7 +657,7 @@ const handleEnterPress = (
     inputValues.value[rowIndex][colIndex] += '\n';
     return;
   } else {
-    /*inputValues.value[rowIndex][colIndex]の最初の三文字が数値+半角ドット+半角スペースの場合、
+  /*inputValues.value[rowIndex][colIndex]の最初の三文字が数値+半角ドット+半角スペースの場合、
   上のセルのolタグの個数を取得して、inputValues.value[rowIndex][colIndex]の最初の三文字をolタグの個数+1 + 半角ドット + 半角スペースに変換する
   */
     const inputText = inputValues.value[rowIndex][colIndex];
