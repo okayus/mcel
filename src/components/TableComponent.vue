@@ -22,14 +22,12 @@ const isTableTypeRow = ref<boolean[]>(initializeTableTypeRow(rows));
 const convertedValues = ref<any[][]>(
   initializeInputValues(rows, cols, '', 'convertedValues')
 );
-const cellInputStatus = ref<boolean[][]>(
-  initializeArray(rows, cols, false)
-);
 const multipleSelectedCells = ref<boolean[][]>(
   initializeArray(rows, cols, false)
 );
 const startPointer = ref<number[]>([NaN, NaN]);
 const foucusedPointer = ref<number[]>([NaN, NaN]);
+const editableCell = ref<number[]>([NaN, NaN]);
 
 function initializeInputValues(
   rows: number,
@@ -140,16 +138,14 @@ const foucusCell = (
 ) => {
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
-      if (i !== rowIndex || j !== colIndex) {
-        cellInputStatus.value[i][j] = false;
-      }
       if (isClickEvent) {
         multipleSelectedCells.value[i][j] = false;
-        startPointer.value = [NaN, NaN];
-        foucusedPointer.value = [rowIndex, colIndex];
       }
     }
   }
+  startPointer.value = [NaN, NaN];
+  foucusedPointer.value = [rowIndex, colIndex];
+  if (isClickEvent) editableCell.value = [NaN, NaN];
 };
 
 const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
@@ -207,7 +203,7 @@ const hadleCellMovement = (
 };
 
 const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
-  if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
+  if (rowIndex > 0 && isNaN(editableCell.value[0])) {
     if (event.ctrlKey || event.metaKey) {
       let rowCounter = rowIndex - 1;
       if (inputValues.value[rowIndex][colIndex]){
@@ -263,7 +259,7 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
 
 const moveDown = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   event.preventDefault();
-  if (rowIndex < rows - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
+  if (rowIndex < rows - 1 && isNaN(editableCell.value[0])) {
     if (event.ctrlKey || event.metaKey) {
       let rowCounter = rowIndex + 1;
       if (inputValues.value[rowIndex][colIndex]){
@@ -325,7 +321,7 @@ const moveRight = (
   event: KeyboardEvent
 ) => {
   event.preventDefault();
-  if (colIndex < cols - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
+  if (colIndex < cols - 1 && isNaN(editableCell.value[0])) {
     if (event.ctrlKey || event.metaKey) {
       let colCounter = colIndex + 1;
       if (inputValues.value[rowIndex][colIndex]){
@@ -383,7 +379,7 @@ const moveRight = (
 
 const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   event.preventDefault();
-  if (colIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
+  if (colIndex > 0 && isNaN(editableCell.value[0])) {
     if (event.ctrlKey || event.metaKey) {
       let colCounter = colIndex - 1;
       if (inputValues.value[rowIndex][colIndex]){
@@ -633,7 +629,7 @@ const handleCellDoubleClick = (
   event: KeyboardEvent | MouseEvent
 ) => {
   event.preventDefault();
-  cellInputStatus.value[rowIndex][colIndex] = true;
+  editableCell.value = [rowIndex, colIndex];
 };
 
 const handleEnterPress = (
@@ -669,7 +665,7 @@ const handleEnterPress = (
         olCount + 1 + '. ' + inputText.slice(3);
     }
   }
-  cellInputStatus.value[rowIndex][colIndex] = false;
+  editableCell.value = [NaN, NaN];
   if (markdownType.value[rowIndex][colIndex] !== 'Table') {
     markdownType.value[rowIndex][colIndex] = detectMarkdownType(
       inputValues.value[rowIndex][colIndex]
@@ -686,11 +682,7 @@ const handleCellBlur = (rowIndex: number, colIndex: number) => {
   if(convertedValues.value[rowIndex][colIndex].slice(-4) === "<br>"){
     convertedValues.value[rowIndex][colIndex] = convertedValues.value[rowIndex][colIndex].slice(0, -4);
   }
-  for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < cols; j++) {
-      cellInputStatus.value[i][j] = false;
-    }
-  }
+  editableCell.value = [NaN, NaN];
 };
 
 onMounted(() => {
@@ -942,7 +934,7 @@ const onContextMenu = (e: MouseEvent) => {
             :id="rowIndex + '-' + colIndex"
           >
             <textarea
-              v-if="cellInputStatus[rowIndex][colIndex]"
+              v-if="editableCell[0] === rowIndex && editableCell[1] === colIndex"
               class="editable"
               v-model="inputValues[rowIndex][colIndex]"
               @keydown.enter="handleEnterPress(rowIndex, colIndex, $event)"
