@@ -6,31 +6,27 @@ import { marked } from 'marked';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { detectMarkdownType } from '../lib/MarkdownDetector';
 import { convertMarkdownType } from '../lib/MarkdownConverter';
-import { en, ro } from 'element-plus/es/locale/index.mjs';
 
-const rows = ref<number>(200);
-const cols = ref<number>(50);
+const rows:number = 200;
+const cols:number = 50;
 const inputValues = ref<string[][]>(
-  initializeInputValues(rows.value, cols.value, '', 'inputValues')
+  initializeInputValues(rows, cols, '', 'inputValues')
 );
 const stackUndoList = <string[][][]>[];
 const stackRedoList = <string[][][]>[];
 const selectedOption = ref<string>('text');
 const markdownType = ref<string[][]>(
-  initializeArray(rows.value, cols.value, 'text')
+  initializeArray(rows, cols, 'text')
 );
-const isTableTypeRow = ref<boolean[]>(initializeTableTypeRow(rows.value));
+const isTableTypeRow = ref<boolean[]>(initializeTableTypeRow(rows));
 const convertedValues = ref<any[][]>(
-  initializeInputValues(rows.value, cols.value, '', 'convertedValues')
-);
-const cellStatus = ref<boolean[][]>(
-  initializeArray(rows.value, cols.value, false)
+  initializeInputValues(rows, cols, '', 'convertedValues')
 );
 const cellInputStatus = ref<boolean[][]>(
-  initializeArray(rows.value, cols.value, false)
+  initializeArray(rows, cols, false)
 );
 const multipleSelectedCells = ref<boolean[][]>(
-  initializeArray(rows.value, cols.value, false)
+  initializeArray(rows, cols, false)
 );
 const startPointer = ref<number[]>([NaN, NaN]);
 const foucusedPointer = ref<number[]>([NaN, NaN]);
@@ -142,12 +138,10 @@ const foucusCell = (
   colIndex: number,
   isClickEvent: boolean
 ) => {
-  cellStatus.value[rowIndex][colIndex] = true;
-  for (let i = 0; i < rows.value; i++) {
-    for (let j = 0; j < cols.value; j++) {
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
       if (i !== rowIndex || j !== colIndex) {
         cellInputStatus.value[i][j] = false;
-        cellStatus.value[i][j] = false;
       }
       if (isClickEvent) {
         multipleSelectedCells.value[i][j] = false;
@@ -163,8 +157,8 @@ const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
 
   if (key === 'Enter') {
     startPointer.value = [NaN, NaN];
-    for (let i = 0; i < rows.value; i++) {
-      for (let j = 0; j < cols.value; j++) {
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
         multipleSelectedCells.value[i][j] = false;
       }
     }
@@ -214,7 +208,6 @@ const hadleCellMovement = (
 
 const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   if (rowIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
-    cellStatus.value[rowIndex][colIndex] = false;
     if (event.ctrlKey || event.metaKey) {
       let rowCounter = rowIndex - 1;
       if (inputValues.value[rowIndex][colIndex]){
@@ -227,10 +220,8 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
           rowCounter--;
         }
       }
-      cellStatus.value[rowCounter][colIndex] = true;
       foucusedPointer.value = [rowCounter, colIndex];
     } else {
-      cellStatus.value[rowIndex - 1][colIndex] = true;
       foucusedPointer.value = [rowIndex - 1, colIndex];
     }
     if (event.shiftKey) {
@@ -261,8 +252,8 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
       }
     } else {
       startPointer.value = [NaN, NaN];
-      for (let i = 0; i < rows.value; i++) {
-        for (let j = 0; j < cols.value; j++) {
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
           multipleSelectedCells.value[i][j] = false;
         }
       }
@@ -272,24 +263,21 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
 
 const moveDown = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   event.preventDefault();
-  if (rowIndex < rows.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
-    cellStatus.value[rowIndex][colIndex] = false;
+  if (rowIndex < rows - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
     if (event.ctrlKey || event.metaKey) {
       let rowCounter = rowIndex + 1;
       if (inputValues.value[rowIndex][colIndex]){
-        while(inputValues.value[rowCounter][colIndex] !== '' && rowCounter < rows.value - 1){
+        while(inputValues.value[rowCounter][colIndex] !== '' && rowCounter < rows - 1){
           rowCounter++;
         }
         if (rowCounter !== rowIndex + 1) rowCounter--;
       } else {
-        while(inputValues.value[rowCounter][colIndex] === '' && rowCounter < rows.value - 1){
+        while(inputValues.value[rowCounter][colIndex] === '' && rowCounter < rows - 1){
           rowCounter++;
         }
       }
-      cellStatus.value[rowCounter][colIndex] = true;
       foucusedPointer.value = [rowCounter, colIndex];
     } else {
-      cellStatus.value[rowIndex + 1][colIndex] = true;
       foucusedPointer.value = [rowIndex + 1, colIndex];
     }
     if (event.shiftKey) {
@@ -322,8 +310,8 @@ const moveDown = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
       }
     } else {
       startPointer.value = [NaN, NaN];
-      for (let i = 0; i < rows.value; i++) {
-        for (let j = 0; j < cols.value; j++) {
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
           multipleSelectedCells.value[i][j] = false;
         }
       }
@@ -337,24 +325,21 @@ const moveRight = (
   event: KeyboardEvent
 ) => {
   event.preventDefault();
-  if (colIndex < cols.value - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
-    cellStatus.value[rowIndex][colIndex] = false;
+  if (colIndex < cols - 1 && !cellInputStatus.value[rowIndex][colIndex]) {
     if (event.ctrlKey || event.metaKey) {
       let colCounter = colIndex + 1;
       if (inputValues.value[rowIndex][colIndex]){
-        while(inputValues.value[rowIndex][colCounter] !== '' && colCounter < cols.value - 1){
+        while(inputValues.value[rowIndex][colCounter] !== '' && colCounter < cols - 1){
           colCounter++;
         }
         if (colCounter !== colIndex + 1) colCounter--;
       } else {
-        while(inputValues.value[rowIndex][colCounter] === '' && colCounter < cols.value - 1){
+        while(inputValues.value[rowIndex][colCounter] === '' && colCounter < cols - 1){
           colCounter++;
         }
       }
-      cellStatus.value[rowIndex][colCounter] = true;
       foucusedPointer.value = [rowIndex, colCounter];
     } else {
-      cellStatus.value[rowIndex][colIndex + 1] = true;
       foucusedPointer.value = [rowIndex, colIndex + 1];
     }
     if (event.shiftKey) {
@@ -387,8 +372,8 @@ const moveRight = (
       }
     } else {
       startPointer.value = [NaN, NaN];
-      for (let i = 0; i < rows.value; i++) {
-        for (let j = 0; j < cols.value; j++) {
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
           multipleSelectedCells.value[i][j] = false;
         }
       }
@@ -399,7 +384,6 @@ const moveRight = (
 const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
   event.preventDefault();
   if (colIndex > 0 && !cellInputStatus.value[rowIndex][colIndex]) {
-    cellStatus.value[rowIndex][colIndex] = false;
     if (event.ctrlKey || event.metaKey) {
       let colCounter = colIndex - 1;
       if (inputValues.value[rowIndex][colIndex]){
@@ -412,10 +396,8 @@ const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
           colCounter--;
         }
       }
-      cellStatus.value[rowIndex][colCounter] = true;
       foucusedPointer.value = [rowIndex, colCounter];
     } else {
-      cellStatus.value[rowIndex][colIndex - 1] = true;
       foucusedPointer.value = [rowIndex, colIndex - 1];
     }
     if (event.shiftKey) {
@@ -446,8 +428,8 @@ const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
       }
     } else {
       startPointer.value = [NaN, NaN];
-      for (let i = 0; i < rows.value; i++) {
-        for (let j = 0; j < cols.value; j++) {
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
           multipleSelectedCells.value[i][j] = false;
         }
       }
@@ -624,8 +606,8 @@ const cellUndo = () => {
   stackRedoList.push(cloneInputValues);
   if (stackUndoList.length > 0) {
     inputValues.value = stackUndoList.pop() as string[][];
-    for (let i = 0; i < rows.value; i++) {
-      for (let j = 0; j < cols.value; j++) {
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
         convertedValues.value[i][j] = marked(inputValues.value[i][j]);
       }
     }
@@ -637,8 +619,8 @@ const cellRedo = () => {
   stackUndoList.push(cloneInputValues);
   if (stackRedoList.length > 0) {
     inputValues.value = stackRedoList.pop() as string[][];
-    for (let i = 0; i < rows.value; i++) {
-      for (let j = 0; j < cols.value; j++) {
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
         convertedValues.value[i][j] = marked(inputValues.value[i][j]);
       }
     }
@@ -704,8 +686,8 @@ const handleCellBlur = (rowIndex: number, colIndex: number) => {
   if(convertedValues.value[rowIndex][colIndex].slice(-4) === "<br>"){
     convertedValues.value[rowIndex][colIndex] = convertedValues.value[rowIndex][colIndex].slice(0, -4);
   }
-  for (let i = 0; i < rows.value; i++) {
-    for (let j = 0; j < cols.value; j++) {
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
       cellInputStatus.value[i][j] = false;
     }
   }
@@ -969,7 +951,7 @@ const onContextMenu = (e: MouseEvent) => {
             </textarea>
             <div
               v-else
-              :class="{ selected: cellStatus[rowIndex][colIndex] }"
+              :class="{ selected: foucusedPointer[0] === rowIndex && foucusedPointer[1] === colIndex}"
               :id="rowIndex + '-' + colIndex"
               @dblclick="handleCellDoubleClick(rowIndex, colIndex, $event)"
               @keydown.enter="handleCellDoubleClick(rowIndex, colIndex, $event)"
