@@ -9,24 +9,27 @@ import { convertMarkdownType } from '../lib/MarkdownConverter';
 
 const rows:number = 200;
 const cols:number = 50;
+
+const pivotCell = ref<number[]>([NaN, NaN]);
+const foucusedCell = ref<number[]>([NaN, NaN]);
+const editableCell = ref<number[]>([NaN, NaN]);
+const startMultipleSelectedCells = ref<number[]>([NaN, NaN]);
+const endMultipleSelectedCells = ref<number[]>([NaN, NaN]);
+
 const inputValues = ref<string[][]>(
   initializeInputValues(rows, cols, '', 'inputValues')
 );
-const stackUndoList = <string[][][]>[];
-const stackRedoList = <string[][][]>[];
+const convertedValues = ref<any[][]>(
+  initializeInputValues(rows, cols, '', 'convertedValues')
+);
 const selectedOption = ref<string>('text');
 const markdownType = ref<string[][]>(
   initializeArray(rows, cols, 'text')
 );
 const isTableTypeRow = ref<boolean[]>(initializeTableTypeRow(rows));
-const convertedValues = ref<any[][]>(
-  initializeInputValues(rows, cols, '', 'convertedValues')
-);
-const startPointer = ref<number[]>([NaN, NaN]);
-const foucusedPointer = ref<number[]>([NaN, NaN]);
-const editableCell = ref<number[]>([NaN, NaN]);
-const startMultipleSelectedCells = ref<number[]>([NaN, NaN]);
-const endMultipleSelectedCells = ref<number[]>([NaN, NaN]);
+
+const stackUndoList = <string[][][]>[];
+const stackRedoList = <string[][][]>[];
 
 function initializeInputValues(
   rows: number,
@@ -79,11 +82,11 @@ function initializeTableTypeRow(rows: number): boolean[] {
 watchEffect(() => {
   localStorage.setItem('inputValues', JSON.stringify(inputValues.value));
   localStorage.setItem('convertedValues', JSON.stringify(convertedValues.value));
-  if(startPointer !== foucusedPointer){
-    startMultipleSelectedCells.value[0] = Math.min(startPointer.value[0], foucusedPointer.value[0]);
-    startMultipleSelectedCells.value[1] = Math.min(startPointer.value[1], foucusedPointer.value[1]);
-    endMultipleSelectedCells.value[0] = Math.max(startPointer.value[0], foucusedPointer.value[0]);
-    endMultipleSelectedCells.value[1] = Math.max(startPointer.value[1], foucusedPointer.value[1]);
+  if(pivotCell !== foucusedCell){
+    startMultipleSelectedCells.value[0] = Math.min(pivotCell.value[0], foucusedCell.value[0]);
+    startMultipleSelectedCells.value[1] = Math.min(pivotCell.value[1], foucusedCell.value[1]);
+    endMultipleSelectedCells.value[0] = Math.max(pivotCell.value[0], foucusedCell.value[0]);
+    endMultipleSelectedCells.value[1] = Math.max(pivotCell.value[1], foucusedCell.value[1]);
   }
 });
 
@@ -91,11 +94,11 @@ const changeOption = (e: any) => {
   const cloneInputValues = structuredClone(toRaw(inputValues.value));
   stackUndoList.push(cloneInputValues);
   selectedOption.value = e;
-  if (!isNaN(startPointer.value[0])) {
-    const startRow = Math.min(startPointer.value[0], foucusedPointer.value[0]);
-    const startCol = Math.min(startPointer.value[1], foucusedPointer.value[1]);
-    const endRow = Math.max(startPointer.value[0], foucusedPointer.value[0]);
-    const endCol = Math.max(startPointer.value[1], foucusedPointer.value[1]);
+  if (!isNaN(pivotCell.value[0])) {
+    const startRow = Math.min(pivotCell.value[0], foucusedCell.value[0]);
+    const startCol = Math.min(pivotCell.value[1], foucusedCell.value[1]);
+    const endRow = Math.max(pivotCell.value[0], foucusedCell.value[0]);
+    const endCol = Math.max(pivotCell.value[1], foucusedCell.value[1]);
     for (
       let i = startRow;
       i <= endRow;
@@ -119,19 +122,19 @@ const changeOption = (e: any) => {
       if (selectedOption.value === 'Table') isTableTypeRow.value[i] = true;
     }
   } else {
-    inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
+    inputValues.value[foucusedCell.value[0]][foucusedCell.value[1]] =
       convertMarkdownType(
-        inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]],
-        markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]],
+        inputValues.value[foucusedCell.value[0]][foucusedCell.value[1]],
+        markdownType.value[foucusedCell.value[0]][foucusedCell.value[1]],
         selectedOption.value
       );
 
-    markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
+    markdownType.value[foucusedCell.value[0]][foucusedCell.value[1]] =
       selectedOption.value;
 
-    convertedValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
+    convertedValues.value[foucusedCell.value[0]][foucusedCell.value[1]] =
       marked(
-        inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]]
+        inputValues.value[foucusedCell.value[0]][foucusedCell.value[1]]
       );
   }
 };
@@ -141,8 +144,8 @@ const foucusCell = (
   colIndex: number,
   isClickEvent: boolean
 ) => {
-  startPointer.value = [NaN, NaN];
-  foucusedPointer.value = [rowIndex, colIndex];
+  pivotCell.value = [NaN, NaN];
+  foucusedCell.value = [rowIndex, colIndex];
   if (isClickEvent) editableCell.value = [NaN, NaN];
 };
 
@@ -150,7 +153,7 @@ const handleCellKeyPress = (rowIndex: number, colIndex: number, event: any) => {
   const key: string = event.key;
 
   if (key === 'Enter') {
-    startPointer.value = [NaN, NaN];
+    pivotCell.value = [NaN, NaN];
     handleEnterPress(rowIndex, colIndex, event);
     foucusCell(rowIndex + 1, colIndex, false);
     return;
@@ -174,7 +177,7 @@ const hadleCellMovement = (
   event: KeyboardEvent
 ) => {
   event.preventDefault();
-  foucusedPointer.value = [rowIndex, colIndex];
+  foucusedCell.value = [rowIndex, colIndex];
   if (event.key === 'ArrowUp') {
     moveUp(rowIndex, colIndex, event);
   } else if (event.key === 'ArrowDown') {
@@ -184,15 +187,15 @@ const hadleCellMovement = (
   } else if (event.key === 'ArrowLeft') {
     moveLeft(rowIndex, colIndex, event);
   }
-  markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]] =
-    markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]] ===
+  markdownType.value[foucusedCell.value[0]][foucusedCell.value[1]] =
+    markdownType.value[foucusedCell.value[0]][foucusedCell.value[1]] ===
     'Table'
       ? 'Table'
       : detectMarkdownType(
-          inputValues.value[foucusedPointer.value[0]][foucusedPointer.value[1]]
+          inputValues.value[foucusedCell.value[0]][foucusedCell.value[1]]
         );
   selectedOption.value =
-    markdownType.value[foucusedPointer.value[0]][foucusedPointer.value[1]];
+    markdownType.value[foucusedCell.value[0]][foucusedCell.value[1]];
 };
 
 const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
@@ -209,19 +212,19 @@ const moveUp = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
           rowCounter--;
         }
       }
-      foucusedPointer.value = [rowCounter, colIndex];
+      foucusedCell.value = [rowCounter, colIndex];
     } else {
-      foucusedPointer.value = [rowIndex - 1, colIndex];
+      foucusedCell.value = [rowIndex - 1, colIndex];
     }
     if (event.shiftKey) {
-      startPointer.value[0] = isNaN(startPointer.value[0])
+      pivotCell.value[0] = isNaN(pivotCell.value[0])
         ? rowIndex
-        : startPointer.value[0];
-      startPointer.value[1] = isNaN(startPointer.value[1])
+        : pivotCell.value[0];
+      pivotCell.value[1] = isNaN(pivotCell.value[1])
         ? colIndex
-        : startPointer.value[1];
+        : pivotCell.value[1];
     } else {
-      startPointer.value = [NaN, NaN];
+      pivotCell.value = [NaN, NaN];
     }
   }
 };
@@ -241,25 +244,25 @@ const moveDown = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
           rowCounter++;
         }
       }
-      foucusedPointer.value = [rowCounter, colIndex];
+      foucusedCell.value = [rowCounter, colIndex];
     } else {
-      foucusedPointer.value = [rowIndex + 1, colIndex];
+      foucusedCell.value = [rowIndex + 1, colIndex];
     }
     if (event.shiftKey) {
-      startPointer.value[0] = isNaN(startPointer.value[0])
+      pivotCell.value[0] = isNaN(pivotCell.value[0])
         ? rowIndex
-        : startPointer.value[0];
-      startPointer.value[1] = isNaN(startPointer.value[1])
+        : pivotCell.value[0];
+      pivotCell.value[1] = isNaN(pivotCell.value[1])
         ? colIndex
-        : startPointer.value[1];
+        : pivotCell.value[1];
       for (
-        let i = Math.min(rowIndex, foucusedPointer.value[0]);
-        i <= Math.max(rowIndex, foucusedPointer.value[0]);
+        let i = Math.min(rowIndex, foucusedCell.value[0]);
+        i <= Math.max(rowIndex, foucusedCell.value[0]);
         i++
       ) {
       }
     } else {
-      startPointer.value = [NaN, NaN];
+      pivotCell.value = [NaN, NaN];
     }
   }
 };
@@ -283,25 +286,25 @@ const moveRight = (
           colCounter++;
         }
       }
-      foucusedPointer.value = [rowIndex, colCounter];
+      foucusedCell.value = [rowIndex, colCounter];
     } else {
-      foucusedPointer.value = [rowIndex, colIndex + 1];
+      foucusedCell.value = [rowIndex, colIndex + 1];
     }
     if (event.shiftKey) {
-      startPointer.value[0] = isNaN(startPointer.value[0])
+      pivotCell.value[0] = isNaN(pivotCell.value[0])
         ? rowIndex
-        : startPointer.value[0];
-      startPointer.value[1] = isNaN(startPointer.value[1])
+        : pivotCell.value[0];
+      pivotCell.value[1] = isNaN(pivotCell.value[1])
         ? colIndex
-        : startPointer.value[1];
+        : pivotCell.value[1];
       for (
-        let i = Math.min(startPointer.value[0], foucusedPointer.value[0]);
-        i <= Math.max(startPointer.value[0], foucusedPointer.value[0]);
+        let i = Math.min(pivotCell.value[0], foucusedCell.value[0]);
+        i <= Math.max(pivotCell.value[0], foucusedCell.value[0]);
         i++
       ) {
       }
     } else {
-      startPointer.value = [NaN, NaN];
+      pivotCell.value = [NaN, NaN];
     }
   }
 };
@@ -321,19 +324,19 @@ const moveLeft = (rowIndex: number, colIndex: number, event: KeyboardEvent) => {
           colCounter--;
         }
       }
-      foucusedPointer.value = [rowIndex, colCounter];
+      foucusedCell.value = [rowIndex, colCounter];
     } else {
-      foucusedPointer.value = [rowIndex, colIndex - 1];
+      foucusedCell.value = [rowIndex, colIndex - 1];
     }
     if (event.shiftKey) {
-      startPointer.value[0] = isNaN(startPointer.value[0])
+      pivotCell.value[0] = isNaN(pivotCell.value[0])
         ? rowIndex
-        : startPointer.value[0];
-      startPointer.value[1] = isNaN(startPointer.value[1])
+        : pivotCell.value[0];
+      pivotCell.value[1] = isNaN(pivotCell.value[1])
         ? colIndex
-        : startPointer.value[1];
+        : pivotCell.value[1];
     } else {
-      startPointer.value = [NaN, NaN];
+      pivotCell.value = [NaN, NaN];
     }
   }
 };
@@ -354,60 +357,60 @@ const handleTabKey = (
 const cellDelete = (rowIndex: number, colIndex: number) => {
   const cloneInputValues = structuredClone(toRaw(inputValues.value));
   stackUndoList.push(cloneInputValues);
-  if (isNaN(startPointer.value[0])) {
+  if (isNaN(pivotCell.value[0])) {
     inputValues.value[rowIndex][colIndex] = '';
     convertedValues.value[rowIndex][colIndex] = '';
     return;
   } else {
     for (
-      let i = Math.min(startPointer.value[0], foucusedPointer.value[0]);
-      i <= Math.max(startPointer.value[0], foucusedPointer.value[0]);
+      let i = Math.min(pivotCell.value[0], foucusedCell.value[0]);
+      i <= Math.max(pivotCell.value[0], foucusedCell.value[0]);
       i++
     ) {
       for (
-        let j = Math.min(startPointer.value[1], foucusedPointer.value[1]);
-        j <= Math.max(startPointer.value[1], foucusedPointer.value[1]);
+        let j = Math.min(pivotCell.value[1], foucusedCell.value[1]);
+        j <= Math.max(pivotCell.value[1], foucusedCell.value[1]);
         j++
       ) {
         inputValues.value[i][j] = '';
         convertedValues.value[i][j] = '';
       }
     }
-    startPointer.value = [NaN, NaN];
-    foucusedPointer.value = [rowIndex, colIndex];
+    pivotCell.value = [NaN, NaN];
+    foucusedCell.value = [rowIndex, colIndex];
   }
 };
 
 const cellCopy = (rowIndex: number, colIndex: number) => {
   let copyText = '';
-  if (isNaN(startPointer.value[0])) {
+  if (isNaN(pivotCell.value[0])) {
     copyText = inputValues.value[rowIndex][colIndex];
   } else {
     for (
-      let i = Math.min(startPointer.value[0], foucusedPointer.value[0]);
-      i <= Math.max(startPointer.value[0], foucusedPointer.value[0]);
+      let i = Math.min(pivotCell.value[0], foucusedCell.value[0]);
+      i <= Math.max(pivotCell.value[0], foucusedCell.value[0]);
       i++
     ) {
       let tableHeaderNotaion = '';
       for (
-        let j = Math.min(startPointer.value[1], foucusedPointer.value[1]);
-        j <= Math.max(startPointer.value[1], foucusedPointer.value[1]);
+        let j = Math.min(pivotCell.value[1], foucusedCell.value[1]);
+        j <= Math.max(pivotCell.value[1], foucusedCell.value[1]);
         j++
       ) {
         if (markdownType.value[i][j] === 'Table') {
           if (i === 0 || markdownType.value[i - 1][j] !== 'Table') {
             tableHeaderNotaion +=
-              j === Math.max(startPointer.value[1], foucusedPointer.value[1])
+              j === Math.max(pivotCell.value[1], foucusedCell.value[1])
                 ? '| --- |\n'
                 : '| --- ';
           }
           copyText +=
-            j === Math.max(startPointer.value[1], foucusedPointer.value[1])
+            j === Math.max(pivotCell.value[1], foucusedCell.value[1])
               ? '| ' + inputValues.value[i][j] + ' |\n' + tableHeaderNotaion
               : '| ' + inputValues.value[i][j] + ' ';
         } else {
           copyText +=
-            j === Math.max(startPointer.value[1], foucusedPointer.value[1])
+            j === Math.max(pivotCell.value[1], foucusedCell.value[1])
               ? inputValues.value[i][j] + '\n'
               : inputValues.value[i][j] + '\t';
         }
@@ -628,7 +631,7 @@ const onContextMenu = (e: MouseEvent) => {
       {
         label: 'Copy',
         onClick: () => {
-          cellCopy(foucusedPointer.value[0], foucusedPointer.value[1]);
+          cellCopy(foucusedCell.value[0], foucusedCell.value[1]);
           if (focusedCellElement) {
             (focusedCellElement as HTMLElement).focus();
           }
@@ -637,7 +640,7 @@ const onContextMenu = (e: MouseEvent) => {
       {
         label: 'Paste',
         onClick: () => {
-          cellPaste(foucusedPointer.value[0], foucusedPointer.value[1]);
+          cellPaste(foucusedCell.value[0], foucusedCell.value[1]);
           if (focusedCellElement) {
             (focusedCellElement as HTMLElement).focus();
           }
@@ -846,7 +849,7 @@ const onContextMenu = (e: MouseEvent) => {
             </textarea>
             <div
               v-else
-              :class="{ selected: foucusedPointer[0] === rowIndex && foucusedPointer[1] === colIndex}"
+              :class="{ selected: foucusedCell[0] === rowIndex && foucusedCell[1] === colIndex}"
               :id="rowIndex + '-' + colIndex"
               @dblclick="handleCellDoubleClick(rowIndex, colIndex, $event)"
               @keydown.enter="handleCellDoubleClick(rowIndex, colIndex, $event)"
